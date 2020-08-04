@@ -104,9 +104,8 @@ def cpslq(x):
         nH = [np.abs(H[i,i]) for i in range(n-1)]
         ih0 = np.argmin(nH)
         
-        print('ny', ny[i0], B[:,i0])
         if ny[i0] < 1e-6 or nH[ih0] < 1e-6:
-            vec = np.array([nint(B[j,i0]) for j in range(n)], dtype=np.complex64)
+            vec = B[:,i0].astype('int64')
             print('vec',vec)
             print('y',y)
             print('M',M)

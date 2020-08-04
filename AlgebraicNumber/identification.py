@@ -4,19 +4,12 @@ and derivative algorithms for constant recognition.
 """
 
 import numpy as np
+import scipy.linalg as lin
 
 
 def nint(x):
-    if hasattr(x, '__iter__'):
-        n = len(x)
-        res = np.empty(n, dtype=np.complex64)
-        for i in range(n):
-            res[i] = nint(x[i])
-        return res
-        
-    xi = np.int64(np.round(np.real(x),0))
-    yi = np.int64(np.round(np.imag(x),0))
-    # return xi+1j*yi
+    xi = np.int64(np.round(x,0))
+    
     return xi
 
 def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
@@ -142,7 +135,7 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
     # use 1-based indexing. (This just allows us to be consistent with
     # Bailey's indexing. The algorithm is 100 lines long, so debugging
     # a single wrong index can be painful.)
-    x = np.hstack(([np.nan], np.array(x, dtype=np.complex64)))
+    x = np.hstack(([np.nan], np.array(x, dtype=np.float64)))
 
     # Sanity check on magnitudes
     minx = min(abs(xx) for xx in x[1:])
@@ -152,15 +145,9 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
         return None
 
     g = np.sqrt(4/3)
-    A = {}
-    B = {}
-    H = {}
+    B = np.eye(n+1, dtype=np.int64)
+    H = np.zeros((n+1,n))
     # Initialization
-    # step 1
-    for i in range(1, n+1):
-        for j in range(1, n+1):
-            A[i,j] = B[i,j] = (i==j)
-            H[i,j] = 0
     # step 2
     s = [None] + [0] * n
     for k in range(1, n+1):
@@ -175,19 +162,13 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
         s[k] = s[k]/t
     # step 3
     for i in range(1, n+1):
-        for j in range(i+1, n):
-            H[i,j] = 0
         if i <= n-1:
             if s[i]:
                 H[i,i] = s[i+1] / s[i]
-            else:
-                H[i,i] = 0
         for j in range(1, i):
             sjj1 = s[j]*s[j+1]
             if sjj1:
-                H[i,j] = -np.conj(y[i])*y[j]/sjj1
-            else:
-                H[i,j] = 0
+                H[i,j] = -y[i]*y[j]/sjj1
     # step 4
     for i in range(2, n+1):
         for j in range(i-1, 0, -1):
@@ -201,7 +182,6 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
             for k in range(1, j+1):
                 H[i,k] = H[i,k] - t*H[j,k]
             for k in range(1, n+1):
-                A[i,k] = A[i,k] - t*A[j,k]
                 B[k,j] = B[k,j] + t*B[k,i]
                 
     # Main algorithm
@@ -218,8 +198,7 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
         # Step 2
         y[m], y[m+1] = y[m+1], y[m]
         tmp = {}
-        for i in range(1,n+1): H[m,i], H[m+1,i] = H[m+1,i], H[m,i]
-        for i in range(1,n+1): A[m,i], A[m+1,i] = A[m+1,i], A[m,i]
+        for i in range(1,n): H[m,i], H[m+1,i] = H[m+1,i], H[m,i]
         for i in range(1,n+1): B[i,m], B[i,m+1] = B[i,m+1], B[i,m]
         # Step 3
         if m <= n - 2:
@@ -229,13 +208,14 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
             # using fixed-point arithmetic
             if not t0:
                 break
-            t1 = H[m,m] / t0
-            t2 = H[m,m+1] / t0
+            t1 = H[m,m]/t0
+            t2 = H[m,m+1]/t0
             for i in range(m, n+1):
                 t3 = H[i,m]
                 t4 = H[i,m+1]
                 H[i,m] = t1*t3+t2*t4
                 H[i,m+1] = -t2*t3+t1*t4
+                
         # Step 4
         for i in range(m+1, n+1):
             for j in range(min(i-1, m+1), 0, -1):
@@ -248,7 +228,6 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
                 for k in range(1, j+1):
                     H[i,k] = H[i,k] - t*H[j,k]
                 for k in range(1, n+1):
-                    A[i,k] = A[i,k] - t*A[j,k]
                     B[k,j] = B[k,j] + t*B[k,i]
         # Until a relation is found, the error typically decreases
         # slowly (e.g. a factor 1-10) with each step TODO: we could
@@ -262,25 +241,23 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
             # Maybe we are done?
             if err < tol:
                 # We are done if the coefficients are acceptable
-                vec = [int(np.round(B[j,i], 0)) for j in range(1,n+1)]
+                vec = [np.round(B[j,i], 0) for j in range(1,n+1)]
                 if max(abs(v) for v in vec) < maxcoeff:
                     if verbose:
-                        print("FOUND relation at iter %i/%i, error: %s" % \
-                            (REP, maxsteps, ctx.nstr(err / ctx.mpf(2)**prec, 1)))
-                    return vec
+                        print("FOUND relation at iter %i/%i" % (REP, maxsteps))
+                    return np.array(vec, dtype=np.int64)
             best_err = min(err, best_err)
         # Calculate a lower bound for the norm. We could do this
         # more exactly (using the Euclidean norm) but there is probably
         # no practical benefit.
-        recnorm = max(abs(h) for h in H.values())
+        recnorm = lin.norm(H, ord=np.inf)
         if recnorm:
             norm = 1 / recnorm
             norm /= 100
         else:
             norm = maxcoeff+1
         if verbose:
-            print("%i/%i:  Error: %8s   Norm: %s" % \
-                (REP, maxsteps, ctx.nstr(best_err / ctx.mpf(2)**prec, 1), norm))
+            print("%i/%i:  Norm: %s, Err: %s" % (REP, maxsteps, norm, np.min(np.abs(y[1:]))))
         if norm >= maxcoeff:
             break
     if verbose:
