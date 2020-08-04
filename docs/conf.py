@@ -1,4 +1,3 @@
-# analyse_s2p documentation build configuration file, created by
 # sphinx-quickstart on Mon Jan  6 15:10:52 2020.
 #
 # This file is execfile()d with the current directory set to its
@@ -251,7 +250,7 @@ html_static_path = ["_static"]
 # html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "SystemControldoc"
+htmlhelp_basename = "AlgebraicNumberdoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 

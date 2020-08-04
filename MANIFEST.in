@@ -10,3 +10,4 @@ recursive-exclude * *.py[co]
 
 recursive-include docs *.md *.rst conf.py *.jpg *.png *.gif
 recursive-include * requirements.txt
+
