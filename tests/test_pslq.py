@@ -21,7 +21,7 @@ class TestPSLQ (TestBase):
             
         self.assertNpArrayAlmostEqual(vec,ref,delta=1.e-8)
         
-    def ntest_pslq_cplxe(self):
+    def test_pslq_cplxe(self):
         z0 = -2 + 3*1j
         vec = pslq([1, z0, z0**2, z0**3, z0**4])
         ref = np.array([0, 0, 13, 4, 1])

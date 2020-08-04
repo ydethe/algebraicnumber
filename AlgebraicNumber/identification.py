@@ -142,8 +142,7 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
     # use 1-based indexing. (This just allows us to be consistent with
     # Bailey's indexing. The algorithm is 100 lines long, so debugging
     # a single wrong index can be painful.)
-    # x = np.hstack(([np.nan], np.array(x, dtype=np.complex64)))
-    x = np.hstack(([np.nan], np.array(x, dtype=np.float64)))
+    x = np.hstack(([np.nan], np.array(x, dtype=np.complex64)))
 
     # Sanity check on magnitudes
     minx = min(abs(xx) for xx in x[1:])
