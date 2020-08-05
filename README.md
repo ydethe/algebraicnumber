@@ -36,11 +36,9 @@ Si tout va bien, vous devriez avoir la sortie suivante :
 
 ## Rapport de couverture des tests
 
-Une fois les tests lancés, vous pouvez générer le rapport de couverture des tests :
+Une fois les tests lancés, le rapport de couverture des tests est disponible ici:
 
-    coverage html
-
-Puis ouvrir dans un navigateur le fichier htmlcov\index.html
+    https://codecov.io/gl/ydethe/algebraicnumber
 
 ## Installation
 
