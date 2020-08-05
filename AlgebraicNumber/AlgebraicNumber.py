@@ -6,7 +6,7 @@ from numpy.polynomial.polynomial import Polynomial
 from scipy import linalg as lin
 from numpy.polynomial import polynomial as P
 
-from AlgebraicNumber.utils import id_vec, cpslq
+from AlgebraicNumber.utils import cpslq
     
     
 class AlgebraicNumber (object):
