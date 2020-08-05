@@ -3,11 +3,61 @@
 from math import factorial
 
 import numpy as np
-from numpy.polynomial import polynomial as poly
+from numpy.polynomial import polynomial as P
 from scipy import linalg as lin
 
 
-def PolynomialReverse(h):
+def newton_sum(h, d):
+    '''Computes the d-th Newton's sum :math:`s_d` of the polynomial h
+    
+    Given the roots :math:`x_k` of h :
+    
+    :math:`h(x_k) = 0`
+    
+    .. math::
+        s_d=\sum_{k=1}^{n} x_k^d
+    
+    Examples:
+      >>> h = np.array([1, 2, 3])
+      >>> for d in range(5): print(newton_sum(h, d))
+      2
+      -0.6666666666666666
+      -0.2222222222222222
+      0.37037037037037035
+      -0.1728395061728395
+      
+    '''
+    # Dh is the degree of h
+    h = P.polytrim(h)
+    Dh = len(h)-1
+    
+    if d == 0:
+        return Dh
+        
+    # X is the vector of the d-th Newton's sum s_d :
+    # with x_k a root of h, 
+    # s_d = x_1^d + x_2^d + ... + x_n^d
+    # X = [s_1, s_2, ..., s_D]
+    A = np.zeros((Dh,Dh))
+    B = np.empty(Dh)
+    
+    for r in range(Dh):
+        A[r,:r+1] = h[-1-r:]
+        B[r] = -(r+1)*h[-r-2]
+    X = lin.inv(A)@B
+    r = np.abs(lin.det(A))
+    
+    if d <= Dh:
+        return X[d-1]
+        
+    a_lrs = -h[:-1]/h[-1]
+    for d in range(Dh+1,d+1):
+        sd = np.sum(a_lrs*X)
+        X = np.hstack((X[1:], [sd]))
+        
+    return sd
+    
+def PolynomialReverse(h:np.array, D=None) -> np.array:
     '''
 
     h is a polynomial with integer coefficients :
@@ -33,26 +83,33 @@ def PolynomialReverse(h):
       array([3, 2, 1])
 
     '''
-    return h[-1::-1]
+    if D is None:
+        D = len(h)-1
+    rev = np.pad(h[-1::-1], (D+1-len(h),0), 'constant', constant_values=(0,0))
+    return rev
 
-
-def LogarithmicReverse(h):
-    '''
-
+def LogarithmicReverse(h:np.array, D:int=None, trim_res:bool=True) -> np.array:
+    '''This function returns the logarithmic reverse rational power series associated with h, denoted LogRev(h)
+    The result of this function is a truncature of degree D
+    
     h is a polynomial with integer coefficients :
-
+    
     :math:`a_0 + a_1.X + a_2.X^2 + ...`
-
+    
     h is represented by the sequence [a0, a1, a2, ...]
-
-    This function returns the logarithmic reverse rational power series associated with h, denoted LogRev(h) :
-
+    
+    LogRev(h) is defined as follows :
+    
     :math:`LogRev(h) = rev(h')/rev(h)`
-
+    
     Args:
       h
         The input polynomial
-
+      D
+        The degree of the output polynomial. By default, same degree as h
+      trim_res
+        True if you want the output array to be trimmed
+        
     Returns:
       The logarithmic reverse
 
@@ -60,28 +117,31 @@ def LogarithmicReverse(h):
       >>> h = np.array([1, 2, 3])
       >>> LogarithmicReverse(h)
       array([ 2.        , -0.66666667, -0.22222222])
-
+      >>> lr = LogarithmicReverse(h, D=5)
+      >>> lr[3:]
+      array([ 0.37037037, -0.17283951, -0.00823045])
+      
     '''
-    # D is the degree of the resulting h
-    D = len(h)-1
-
-    # X is the vector of the d-th Newton's sum s_d :
-    # with x_k a root of h, 
-    # s_d = x_1^d + x_2^d + ... + x_n^d
-    # X = [s_1, s_2, ..., s_D]
-    A = np.zeros((D,D))
-    B = np.empty(D)
+    # Dh is the degree of the resulting h
+    h = P.polytrim(h)
+    Dh = len(h)-1
     
-    for r in range(D):
-        A[r,:r+1] = h[-1-r:]
-        B[r] = -(r+1)*h[-r-2]
-    X = lin.inv(A)@B
+    if D is None:
+        D = Dh
     
-    lr = np.hstack(([D], X))
-    return lr
+    lr = np.empty(D+1)
+    for d in range(D+1):
+        lr[d] = newton_sum(h, d)
+        
+    if trim_res:
+        res = P.polytrim(lr)
+    else:
+        res = lr
+        
+    return res
 
 
-def PolynomialFromLogReverse(lr):
+def PolynomialFromLogReverse(lr, D=None):
     '''
 
     Examples:
@@ -92,21 +152,28 @@ def PolynomialFromLogReverse(lr):
       
     '''
     # D is the degree of the resulting h
-    D = len(lr)-1
-
+    if D is None:
+        D = len(lr)-1
+    
     # Computation of D - LogRev(h) as the fraction n1, d1
-    dif = poly.polysub([D], lr)
-    assert(dif[0] == 0)
-
+    dif = P.polysub([D], lr)
+    
+    if dif[0] != 0:
+        raise AssertionError(dif)
+    
     # D - LogRev is always dividable by X
     # n2 is the resulting fraction : 1/X.(D - LogRev(h))
     n2 = dif[1:]
-
+    # print(110, 'n2', n2)
+    
     # Integrate n2
-    n3 = poly.polyint(n2)
+    if len(n2) == 0:
+        n3 = []
+    else:
+        n3 = P.polyint(n2)
     n3 = np.pad(n3, (0, D+1-len(n3)), 'constant', constant_values=(0,0))
-    # print('n3', n3)
-
+    # print(118, 'n3', n3)
+    
     # Exponentiate n3
     n4 = np.zeros(D+1)
     dl = np.zeros(D+1)
@@ -117,11 +184,13 @@ def PolynomialFromLogReverse(lr):
         # dl : DL de exp(n3[i].x^i) a l'ordre D
         s = slice(0,D+1,i)
         nc = 1+D//i
-        dl *= 0
+        dl[:] = 0
         dl[s] = n3[i]**k[:nc]/coeff[:nc]
-        n4 = poly.polymul(n4,dl)
+        # print(132, 'D,n4', D, n4)
+        n4 = P.polymul(n4,dl)
         
-    return PolynomialReverse(n4[:D+1])
+    # print(135, 'D,n4', D, n4)
+    return PolynomialReverse(n4[:D+1], D=D)
 
 
 if __name__ == '__main__':
