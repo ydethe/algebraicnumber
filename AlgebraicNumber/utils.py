@@ -216,7 +216,7 @@ def haroldgcd(*args) -> np.array:
     if rank_of_sylmat == min(S.shape):
         return np.array([1])
     else:
-        p, l, u = lu(S)
+        p, l, u = lin.lu(S)
 
     u[abs(u) < 1e-8] = 0
     for rows in range(u.shape[0]-1, 0, -1):
