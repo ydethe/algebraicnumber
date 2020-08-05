@@ -6,7 +6,23 @@ import scipy.signal as sig
 import scipy.linalg as lin
 
 
-def nint(x):
+def nint(x : np.complex64) -> np.int64:
+    '''
+    
+    Returns the nearest integer n from a complex x
+    
+    n is defined as :
+    
+    :math:`n = floor ( Re(x)+1/2 )`
+    
+    Args:
+      x
+        Input complex
+    
+    Returns:
+      The integer n
+      
+    '''
     if hasattr(x, '__iter__'):
         n = len(x)
         res = np.empty(n, dtype=np.complex64)
@@ -19,7 +35,7 @@ def nint(x):
     # return xi+1j*yi
     return xi
     
-def cpslq(x):
+def cpslq(x : np.array) -> np.array:
     '''
     PSLQ over Q[sqrt(-D)]
     
@@ -113,80 +129,7 @@ def cpslq(x):
             print()
             return vec
         
-def id_vec(vec):
-    vec = np.array(vec)
-    n = len(vec)
-    
-    iok = list(np.where(vec != 0)[0])
-    
-    res = np.zeros(n, dtype=np.int64)
-    
-    if len(iok) < 2:
-        return res
-        
-    vec_id = pslq(vec[iok])
-    res[iok] = vec_id
-    return res
-    
-def nCr(n,r):
-    f = math.factorial
-    return f(n) // f(r) // f(n-r)
-    
-    
-def SQFR_yun(a):
-    '''
-    
-    Square-free factorization, following Yun's algorithm
-    
-    https://planetcalc.com/7762/
-    
-    Examples:
-      >>> # P = [1, 0, -2, 0, 1]
-      >>> # SQFR_yun(P)
-      >>> # P = [-1, -2, 0, 2, 1]
-      >>> # SQFR_yun(P)
-      >>> # P = P.polypow([-1,1], 4)
-      >>> # SQFR_yun(P)
-      >>> # P = [1,2,1]
-      >>> # SQFR_yun(P)
-      >>> # P = [16, -16, 8, -4, 1]
-      >>> # SQFR_yun(P)
-      
-    '''
-    # Passage en representation compatible numpy : 
-    # l'element 0 du tableau est le coeff de plus haut degres
-    a = a.copy()[-1::-1]
-    
-    # Derivative calculation
-    b = np.polyder(a)
-    
-    # Greatest common divisor calculation     
-    c = haroldgcd(a, b)
-    i = 1
-    
-    if np.all(c == 0):
-        w = a.copy()
-    else:
-        w,r = np.polydiv(a, c)
-        print("toto54")
-        print(r)
-        y,r = np.polydiv(b, c)
-        z = y - np.polyder(w)
-        while np.any(z != 0):
-            g = haroldgcd(w, z)
-            # res = g^i
-            print("toto59")
-            print(i,g,w)
-            i += 1
-            w,r = np.polydiv(w, g)
-            y,r = np.polydiv(z, g)
-            z = y - np.polyder(w)
-            
-    # res = w^i
-    print("toto57")
-    print(i,w)
-
-def haroldgcd(*args):
+def haroldgcd(*args) -> np.array:
     """
     Takes 1D numpy arrays and computes the numerical greatest common
     divisor polynomial. The polynomials are assumed to be in decreasing
@@ -197,19 +140,15 @@ def haroldgcd(*args):
     still computed as :math:`1`.
     
     Args:
-      args : iterable
+      args
         A collection of 1D array_likes.
         
     Returns:
-      gcdpoly : ndarray
-        Computed GCD of args.
+      Computed GCD of args.
         
     Examples:
-      >>> # P1 = [2, 5, 6, 6, 4, 1]
       >>> P1 = [1, 4, 6, 6, 5, 2]
-      >>> # P2 = [120, 154, 71, 14, 1]
       >>> P2 = [1, 14, 71, 154, 120]
-      >>> # P3 = [1024, 5120, 11520, 15360, 13440, 8064, 3360, 960, 180, 20, 1]
       >>> P3 = [1, 20, 180, 960, 3360, 8064, 13440, 15360, 11520, 5120, 1024]
       >>> a = haroldgcd(P1, P2, P3)
       >>> a
