@@ -46,7 +46,7 @@ Pour installer la librairie et les outils associés, lancer :
 
     python setup.py install --user
 
-AlgebraicNumber met à disposition les outils suivants, accessibles en ligne de commande :
+[//]: # (AlgebraicNumber met à disposition les outils suivants, accessibles en ligne de commande :)
 
-* AlgebraicNumber
+[//]: # (* AlgebraicNumber)
 
