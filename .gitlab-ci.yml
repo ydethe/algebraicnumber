@@ -39,7 +39,6 @@ test:
   artifacts:
     paths:
       - test-results
-      - htmlcov
     reports:
       junit: test-results/*.xml
 
