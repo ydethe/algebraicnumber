@@ -34,9 +34,9 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
     Find rational approximations for `\pi`::
 
         >>> pslq([-1, np.pi], tol=0.01)
-        array([22,  7])
+        array([22,  7]...
         >>> pslq([-1, np.pi], tol=0.001)
-        array([355, 113])
+        array([355, 113]...
 
     Pi is not a rational number with denominator less than 1000::
 
@@ -58,7 +58,7 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
         >>> pslq([np.sqrt(n) for n in range(2, 5+1)])
         >>>
         >>> pslq([np.sqrt(n) for n in range(2, 8+1)])
-        array([ 2,  0,  0,  0,  0,  0, -1])
+        array([ 2,  0,  0,  0,  0,  0, -1]...
 
     **Machin formulas**
 
@@ -81,11 +81,11 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
     We can easily verify the formulas using the PSLQ algorithm::
 
         >>> pslq([np.pi/4, acot(1)])
-        array([ 1, -1])
+        array([ 1, -1]...
         >>> pslq([np.pi/4, acot(5), acot(239)])
-        array([ 1, -4,  1])
+        array([ 1, -4,  1]...
         >>> pslq([np.pi/4, acot(49), acot(57), acot(239), acot(110443)])
-        array([  1, -12, -32,   5, -12])
+        array([  1, -12, -32,   5, -12]...
 
     We could try to generate a custom Machin-like formula by running
     the PSLQ algorithm with a few inverse cotangent values, for example
@@ -94,12 +94,12 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
     being detected, with a zero coefficient for `\pi`::
 
         >>> pslq([np.pi] + [acot(n) for n in range(2,11)])
-        array([ 0,  1, -1,  0,  0,  0, -1,  0,  0,  0])
+        array([ 0,  1, -1,  0,  0,  0, -1,  0,  0,  0]...
 
     We get better luck by removing linearly dependent terms::
 
         >>> pslq([np.pi] + [acot(n) for n in range(2,11) if n not in (3, 5)])
-        array([ 1, -8,  0,  0,  4,  0,  0,  0])
+        array([ 1, -8,  0,  0,  4,  0,  0,  0]...
 
     In other words, we found the following formula::
 

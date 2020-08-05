@@ -19,20 +19,23 @@ Si tout va bien, vous devriez avoir la sortie suivante :
 
     ============================= test session starts =============================
     platform win32 -- Python 3.5.2, pytest-5.3.2, py-1.8.1, pluggy-0.13.1
-    rootdir: .../AlgebraicNumber, inifile: setup.cfg
+    rootdir: .../.../algebraicnumber, inifile: setup.cfg
     plugins: cov-2.8.1
-    collected 5 items
-    
-    tests\test_analyse.py ....                                               [ 80%]
-    tests\test_util.py .                                                     [100%]
-    
-    - generated xml file: .../AlgebraicNumber/test-results/junit.xml
-     -
-    
+    collected 13 items
+
+    tests\test_ops.py .                                                      [  7%]
+    tests\test_pslq.py ..                                                    [ 23%]
+    AlgebraicNumber\AlgebraicNumber.py .....                                 [ 61%]
+    AlgebraicNumber\identification.py .                                      [ 69%]
+    AlgebraicNumber\inria_utils.py ...                                       [ 92%]
+    AlgebraicNumber\utils.py .                                               [100%]
+
+    - generated xml file: .../.../algebraicnumber/test-results/junit.xml --
+
     ----------- coverage: platform win32, python 3.5.2-final-0 -----------
     Coverage XML written to file test-results/coverage.xml
     
-    ============================== 5 passed in 6.10s ==============================
+    ============================= 13 passed in 2.15s ==============================
 
 ## Rapport de couverture des tests
 
