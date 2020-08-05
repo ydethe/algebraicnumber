@@ -1,6 +1,5 @@
 import math
 
-from mpmath import pslq
 import numpy as np
 from scipy.optimize import root
 from numpy.polynomial.polynomial import Polynomial

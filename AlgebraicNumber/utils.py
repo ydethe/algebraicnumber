@@ -1,5 +1,4 @@
 import collections
-from mpmath import pslq
 import numpy as np
 from numpy.linalg import matrix_rank
 import scipy.signal as sig

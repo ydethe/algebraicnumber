@@ -23,28 +23,22 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
         |c_1 x_1 + c_2 x_2 + ... + c_n x_n| < \mathrm{tol}
 
     and such that `\max |c_k| < \mathrm{maxcoeff}`. If no such vector
-    exists, :func:`~mpmath.pslq` returns ``None``. The tolerance defaults to
+    exists, :func:`~identification.pslq` returns ``None``. The tolerance defaults to
     3/4 of the working precision.
 
     **Examples**
 
     Find rational approximations for `\pi`::
 
-        >>> from mpmath import *
-        >>> mp.dps = 15; mp.pretty = True
         >>> pslq([-1, pi], tol=0.01)
         [22, 7]
         >>> pslq([-1, pi], tol=0.001)
         [355, 113]
-        >>> mpf(22)/7; mpf(355)/113; +pi
-        3.14285714285714
-        3.14159292035398
-        3.14159265358979
 
     Pi is not a rational number with denominator less than 1000::
 
         >>> pslq([-1, pi])
-        >>>
+        
 
     To within the standard precision, it can however be approximated
     by at least one rational number with denominator less than `10^{12}`::
@@ -53,8 +47,6 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
         >>> print(p); print(q)
         238410049439
         75888275702
-        >>> mpf(p)/q
-        3.14159265358979
 
     The PSLQ algorithm can be applied to long vectors. For example,
     we can investigate the rational (in)dependence of integer square
@@ -88,7 +80,6 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
 
     We can easily verify the formulas using the PSLQ algorithm::
 
-        >>> mp.dps = 30
         >>> pslq([pi/4, acot(1)])
         [1, -1]
         >>> pslq([pi/4, acot(5), acot(239)])
