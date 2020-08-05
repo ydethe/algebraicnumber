@@ -12,6 +12,9 @@ def nint(x):
     
     return xi
 
+def acot(x):
+    return np.arctan(1/x)
+    
 def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
     r"""
     Given a vector of real numbers `x = [x_0, x_1, ..., x_n]`, ``pslq(x)``
@@ -30,35 +33,32 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
 
     Find rational approximations for `\pi`::
 
-        >>> pslq([-1, pi], tol=0.01)
-        [22, 7]
-        >>> pslq([-1, pi], tol=0.001)
-        [355, 113]
+        >>> pslq([-1, np.pi], tol=0.01)
+        array([22,  7])
+        >>> pslq([-1, np.pi], tol=0.001)
+        array([355, 113])
 
     Pi is not a rational number with denominator less than 1000::
 
-        >>> pslq([-1, pi])
+        >>> pslq([-1, np.pi])
         
 
     To within the standard precision, it can however be approximated
     by at least one rational number with denominator less than `10^{12}`::
 
-        >>> p, q = pslq([-1, pi], maxcoeff=10**12)
+        >>> p, q = pslq([-1, np.pi], maxcoeff=10**12)
         >>> print(p); print(q)
-        238410049439
-        75888275702
-
+        7049532881
+        2243936009
+        
     The PSLQ algorithm can be applied to long vectors. For example,
     we can investigate the rational (in)dependence of integer square
     roots::
 
-        >>> mp.dps = 30
-        >>> pslq([sqrt(n) for n in range(2, 5+1)])
+        >>> pslq([np.sqrt(n) for n in range(2, 5+1)])
         >>>
-        >>> pslq([sqrt(n) for n in range(2, 6+1)])
-        >>>
-        >>> pslq([sqrt(n) for n in range(2, 8+1)])
-        [2, 0, 0, 0, 0, 0, -1]
+        >>> pslq([np.sqrt(n) for n in range(2, 8+1)])
+        array([ 2,  0,  0,  0,  0,  0, -1])
 
     **Machin formulas**
 
@@ -80,12 +80,12 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
 
     We can easily verify the formulas using the PSLQ algorithm::
 
-        >>> pslq([pi/4, acot(1)])
-        [1, -1]
-        >>> pslq([pi/4, acot(5), acot(239)])
-        [1, -4, 1]
-        >>> pslq([pi/4, acot(49), acot(57), acot(239), acot(110443)])
-        [1, -12, -32, 5, -12]
+        >>> pslq([np.pi/4, acot(1)])
+        array([ 1, -1])
+        >>> pslq([np.pi/4, acot(5), acot(239)])
+        array([ 1, -4,  1])
+        >>> pslq([np.pi/4, acot(49), acot(57), acot(239), acot(110443)])
+        array([  1, -12, -32,   5, -12])
 
     We could try to generate a custom Machin-like formula by running
     the PSLQ algorithm with a few inverse cotangent values, for example
@@ -93,20 +93,20 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
     dependence among these values, resulting in only that dependence
     being detected, with a zero coefficient for `\pi`::
 
-        >>> pslq([pi] + [acot(n) for n in range(2,11)])
-        [0, 1, -1, 0, 0, 0, -1, 0, 0, 0]
+        >>> pslq([np.pi] + [acot(n) for n in range(2,11)])
+        array([ 0,  1, -1,  0,  0,  0, -1,  0,  0,  0])
 
     We get better luck by removing linearly dependent terms::
 
-        >>> pslq([pi] + [acot(n) for n in range(2,11) if n not in (3, 5)])
-        [1, -8, 0, 0, 4, 0, 0, 0]
+        >>> pslq([np.pi] + [acot(n) for n in range(2,11) if n not in (3, 5)])
+        array([ 1, -8,  0,  0,  4,  0,  0,  0])
 
     In other words, we found the following formula::
 
         >>> 8*acot(2) - 4*acot(7)
-        3.14159265358979323846264338328
-        >>> +pi
-        3.14159265358979323846264338328
+        3.141592653589793...
+        >>> np.pi
+        3.141592653589793...
 
     **Algorithm**
 
@@ -259,6 +259,6 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
 
 if __name__ == '__main__':
     import doctest
-    doctest.testmod()
+    doctest.testmod(optionflags=doctest.ELLIPSIS)
     
     

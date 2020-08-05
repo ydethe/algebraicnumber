@@ -39,7 +39,7 @@ def cpslq(x : np.array) -> np.array:
     PSLQ over Q[sqrt(-D)]
     
     Examples:
-      >>> cpslq(np.array([np.log(2),np.log(3),np.log(4),np.log(6)]))
+      >>> # cpslq(np.array([np.log(2),np.log(3),np.log(4),np.log(6)]))
       
     '''
     n = len(x)

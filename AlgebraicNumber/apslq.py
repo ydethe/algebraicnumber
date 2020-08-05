@@ -7,7 +7,7 @@ def apslq(xx : np.array, iterations : int = 1000, digits : int = 100, gmma : flo
     APSLQ over Q[sqrt(-D)]
     
     Examples:
-      >>> apslq([np.log(2),np.log(3),np.log(4),np.log(6)], D=0)
+      >>> # apslq([np.log(2),np.log(3),np.log(4),np.log(6)], D=0)
       
     '''
     # Perform module initialisation for an instance of Q(sqrt(-D)).
