@@ -38,7 +38,7 @@ Si tout va bien, vous devriez avoir la sortie suivante :
 
 Une fois les tests lancés, le rapport de couverture des tests est disponible ici:
 
-    https://codecov.io/gl/ydethe/algebraicnumber
+https://codecov.io/gl/ydethe/algebraicnumber
 
 ## Installation
 
