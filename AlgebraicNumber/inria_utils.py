@@ -105,7 +105,7 @@ def PolynomialFromLogReverse(lr):
     # Integrate n2
     n3 = poly.polyint(n2)
     n3 = np.pad(n3, (0, D+1-len(n3)), 'constant', constant_values=(0,0))
-    print('n3', n3)
+    # print('n3', n3)
 
     # Exponentiate n3
     n4 = np.zeros(D+1)
