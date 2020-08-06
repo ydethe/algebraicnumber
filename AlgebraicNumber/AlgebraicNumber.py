@@ -41,7 +41,7 @@ class AlgebraicNumber(object):
             self._simplify()
 
     def _simplify(self):
-        c = simplify(self.coeff)
+        c = simplify(self.coeff, self.approx)
 
         self.coeff = c
         self.poly = Polynomial(c)
@@ -94,8 +94,8 @@ class AlgebraicNumber(object):
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2/sqrt_3
-        >>> # p.coeff
-        # [-2, 0, 3]
+        >>> p.coeff
+        array([-2,  0,  3]...
         
         """
         ib = b.inverse()
@@ -106,8 +106,8 @@ class AlgebraicNumber(object):
         
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> p = -sqrt_2
-        >>> # p.coeff
-        # [-2, 0, 1]
+        >>> p.coeff
+        array([-2,  0,  1]...
         
         """
         n = len(self.coeff)
@@ -129,8 +129,8 @@ class AlgebraicNumber(object):
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2+sqrt_3
-        >>> # p.coeff
-        # [1, 0, -10, 0, 1]
+        >>> p.coeff
+        array([  1,   0, -10,   0,   1]...
         >>> ref = np.sqrt(2) + np.sqrt(3)
         >>> np.abs(p.approx - ref) < 1e-10
         True
@@ -149,8 +149,8 @@ class AlgebraicNumber(object):
         >>> z.coeff
         array([ 2, -2,  1]...
         >>> p = z*z.conj()
-        >>> # p.coeff
-        # array([-2, 1]...
+        >>> p.coeff
+        array([-2,  1]...
         
         """
         coeff = self.coeff

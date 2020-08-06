@@ -1,6 +1,7 @@
 import collections
-from math import gcd
+from math import gcd, factorial, modf
 from functools import reduce
+from itertools import combinations
 
 import numpy as np
 from numpy.linalg import matrix_rank
@@ -9,6 +10,10 @@ import scipy.signal as sig
 import scipy.linalg as lin
 
 
+def nCr(n,r):
+    return factorial(n) // factorial(r) // factorial(n-r)
+    
+    
 def nint(x: np.complex64) -> np.int64:
     """
     
@@ -384,7 +389,7 @@ def discriminant(R):
     return dis
     
     
-def mignotte_separation_bound(R: np.array) -> float:
+def mahler_separation_bound(R: np.array) -> float:
     r'''The minimum root separation for a polynomial P is defined as:
     
     .. math::
@@ -400,7 +405,7 @@ def mignotte_separation_bound(R: np.array) -> float:
     
     Examples:
       >>> R = [1, -3, 1, -3]
-      >>> b = mignotte_separation_bound(R)
+      >>> b = mahler_separation_bound(R)
       >>> b
       0.111...
       
@@ -468,17 +473,111 @@ def square_free_fact(R):
             raise AssertionError(r)
         
     
-def simplify(h):
+def polytrans(R, a):
+    r'''
+    
+    Examples:
+      >>> R = [0, 0, 1]
+      >>> polytrans(R, 2)
+      array([4., 4., 1.]...
+      
+    '''
+    r = P.polytrim(R)
+    n = len(r)-1
+    
+    q = np.empty(n+1)
+    for k in range(n+1):
+        q[k] = 0
+        for p in range(k,n+1):
+            q[k] += nCr(p,k)*r[p]*a**(p-k)
+    
+    return q
+    
+    
+def npolymul(*polynomials):
+    res = [1]
+    for q in polynomials:
+        res = P.polymul(res, q)
+    return res
+    
+    
+def simplify(h, root, tol=1e-9):
+    r'''
+    
+    Examples:
+      >>> R = [4, -2, 0, -2, 1]
+      >>> simplify(R, 2)
+      array([-2,  1]...
+      >>> simplify(R, 2**(1/3))
+      array([-2,  0,  0,  1]...
+      
+    '''
     # 1. square free
     h2 = square_free_fact(h)
     
     g = reduce(gcd,h2)
     h3 = h2//g
     
-    return h3
+    n = len(h3)-1
+    roots = P.polyroots(h3)
+    
+    # We remove the given root
+    yy = np.abs(roots-root)
+    i0 = np.argmin(yy)
+    roots = np.delete(roots, i0)
+    
+    def _is_poly_valid(h):
+        '''The coeficients of the polynomial h must:
+        * have no imaginary part
+        * be integers
+        '''
+        ok = True
+        for hk in h:
+            if np.abs(np.imag(hk)) > tol:
+                ok = False
+                break
+                
+            d,_ = modf(np.real(hk))
+            if np.abs(d) > tol:
+                ok = False
+                break
+        
+        return ok
+    
+    if n <= 2:
+        return h3
+    
+    for nr in range(n):
+        for c in combinations(roots, nr):
+            h4 = npolymul(*[[-x,1] for x in c])
+            h4 = P.polymul(h4, [-root*h3[-1],h3[-1]])
+            
+            ok = _is_poly_valid(h4)
+            
+            if ok:
+                break
+                
+        if ok:
+            break
+    
+    if not ok:
+        raise AssertionError
+    
+    h5 = np.int32(np.real(h4))
+    
+    # Suppressing the first null coefficients
+    n = len(h5)-1
+    
+    for i in range(n+1):
+        if h5[i] != 0:
+            break
+    
+    return h5[i:]
     
 
 if __name__ == "__main__":
     import doctest
 
     doctest.testmod(optionflags=doctest.ELLIPSIS)
+    
+    
