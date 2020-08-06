@@ -159,7 +159,7 @@ def haroldgcd(*args) -> np.array:
       >>> P3 = [1, 20, 180, 960, 3360, 8064, 13440, 15360, 11520, 5120, 1024]
       >>> a = haroldgcd(P1, P2, P3)
       >>> a
-      array([1., 2.])
+      array([1., 2.]...
       
     .. warning:: It uses the LU factorization of the Sylvester matrix.
                  Use responsibly. It does not check any certificate of
@@ -421,7 +421,7 @@ def polygcd(R, S):
       >>> R = [1, -1, 0, 0, -1, 1]
       >>> S = [-1, 0, 0, -4, 5]
       >>> polygcd(R, S)
-      array([-1.,  1.])
+      array([-1.,  1.]...
       
     '''
     a = P.polytrim(R)
@@ -451,7 +451,7 @@ def square_free_fact(R):
     Examples:
       >>> R = [1, -1, 0, 0, -1, 1]
       >>> square_free_fact(R)
-      array([-1,  0,  0,  0,  1])
+      array([-1,  0,  0,  0,  1]...
       
     '''
     p = P.polytrim(R)

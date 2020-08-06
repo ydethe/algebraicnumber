@@ -27,7 +27,7 @@ def newton_sum(h: np.array, d: int) -> float:
       The d-th Newton's sum of h's roots
       
     Examples:
-      >>> h = np.array([1, 2, 3])
+      >>> h = np.array([1, 2, 3]...
       >>> for d in range(5): print(newton_sum(h, d))
       2
       -0.6666666666...
@@ -94,7 +94,7 @@ def PolynomialReverse(h: np.array, D : int = None) -> np.array:
     Examples:
       >>> h = np.array([1, 2, 3])
       >>> PolynomialReverse(h)
-      array([3, 2, 1])
+      array([3, 2, 1]...
 
     """
     if D is None:
@@ -131,10 +131,10 @@ def LogarithmicReverse(h: np.array, D: int = None, trim_res: bool = True) -> np.
     Examples:
       >>> h = np.array([1, 2, 3])
       >>> LogarithmicReverse(h)
-      array([ 2.        , -0.66666667, -0.22222222])
+      array([ 2.        , -0.66666667, -0.22222222]...
       >>> lr = LogarithmicReverse(h, D=5)
       >>> lr[3:]
-      array([ 0.37037037, -0.17283951, -0.00823045])
+      array([ 0.37037037, -0.17283951, -0.00823045]...
       
     """
     # Dh is the degree of the resulting h
@@ -173,14 +173,14 @@ def PolynomialFromLogReverse(lr: np.array, D: int = None) -> np.array:
       >>> h = np.array([2, 3, 4])
       >>> lr = LogarithmicReverse(h)
       >>> PolynomialFromLogReverse(lr)
-      array([0.5 , 0.75, 1.  ])
+      array([0.5 , 0.75, 1.  ]...
       
       >>> h = np.array([-1, 0, 1])
       >>> lr = LogarithmicReverse(h, D=4)
       >>> lr
-      array([2., 0., 2., 0., 2.])
+      array([2., 0., 2., 0., 2.]...
       >>> PolynomialFromLogReverse(lr, D=2)
-      array([-1.,  0.,  1.])
+      array([-1.,  0.,  1.]...
       
     """
     # D is the degree of the resulting h
