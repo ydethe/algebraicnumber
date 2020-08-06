@@ -67,7 +67,7 @@ def newton_sum(h: np.array, d: int) -> float:
     return sd
 
 
-def PolynomialReverse(h: np.array, D : int = None) -> np.array:
+def PolynomialReverse(h: np.array, D: int = None) -> np.array:
     """This function returns the reverse polynomial associated with h, denoted rev(h)
 
     h is a polynomial with integer coefficients :
@@ -202,12 +202,12 @@ def PolynomialFromLogReverse(lr: np.array, D: int = None) -> np.array:
         n3 = []
     else:
         n3 = P.polyint(n2)
-    
-    if D+1 > len(n3):
+
+    if D + 1 > len(n3):
         n3 = np.pad(n3, (0, D + 1 - len(n3)), "constant", constant_values=(0, 0))
-    elif D+1 < len(n3):
-        n3 = n3[:D+1]
-        
+    elif D + 1 < len(n3):
+        n3 = n3[: D + 1]
+
     # Exponentiate n3
     n4 = np.zeros(D + 1)
     dl = np.zeros(D + 1)

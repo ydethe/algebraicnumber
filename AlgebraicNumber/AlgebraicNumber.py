@@ -55,7 +55,7 @@ class AlgebraicNumber(object):
             z = x + 1j * y
             P = self.poly(z)
             return [np.real(P), np.imag(P)]
-            
+
         sol = root(fun, x0=[np.real(approx), np.imag(approx)])
         if sol.success:
             x, y = sol.x
