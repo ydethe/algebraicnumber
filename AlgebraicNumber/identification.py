@@ -8,13 +8,15 @@ import scipy.linalg as lin
 
 
 def nint(x):
-    xi = np.int64(np.round(x,0))
-    
+    xi = np.int64(np.round(x, 0))
+
     return xi
 
+
 def acot(x):
-    return np.arctan(1/x)
-    
+    return np.arctan(1 / x)
+
+
 def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
     r"""
     Given a vector of real numbers `x = [x_0, x_1, ..., x_n]`, ``pslq(x)``
@@ -130,96 +132,98 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
 
     # Sanity check on magnitudes
     minx = min(abs(xx) for xx in x[1:])
-    if minx < tol/100:
+    if minx < tol / 100:
         if verbose:
             print("STOPPING: (one number is too small)")
         return None
 
-    g = np.sqrt(4/3)
-    B = np.eye(n+1, dtype=np.int64)
-    H = np.zeros((n+1,n))
+    g = np.sqrt(4 / 3)
+    B = np.eye(n + 1, dtype=np.int64)
+    H = np.zeros((n + 1, n))
     # Initialization
     # step 2
     s = [None] + [0] * n
-    for k in range(1, n+1):
+    for k in range(1, n + 1):
         t = 0
-        for j in range(k, n+1):
-            t += x[j]**2
+        for j in range(k, n + 1):
+            t += x[j] ** 2
         s[k] = np.sqrt(t)
     t = s[1]
     y = x[:]
-    for k in range(1, n+1):
-        y[k] = x[k]/t
-        s[k] = s[k]/t
+    for k in range(1, n + 1):
+        y[k] = x[k] / t
+        s[k] = s[k] / t
     # step 3
-    for i in range(1, n+1):
-        if i <= n-1:
+    for i in range(1, n + 1):
+        if i <= n - 1:
             if s[i]:
-                H[i,i] = s[i+1] / s[i]
+                H[i, i] = s[i + 1] / s[i]
         for j in range(1, i):
-            sjj1 = s[j]*s[j+1]
+            sjj1 = s[j] * s[j + 1]
             if sjj1:
-                H[i,j] = -y[i]*y[j]/sjj1
+                H[i, j] = -y[i] * y[j] / sjj1
     # step 4
-    for i in range(2, n+1):
-        for j in range(i-1, 0, -1):
-            #t = np.floor(H[i,j]/H[j,j] + 0.5)
-            if H[j,j]:
-                t = nint(H[i,j]/H[j,j])
+    for i in range(2, n + 1):
+        for j in range(i - 1, 0, -1):
+            # t = np.floor(H[i,j]/H[j,j] + 0.5)
+            if H[j, j]:
+                t = nint(H[i, j] / H[j, j])
             else:
-                #t = 0
+                # t = 0
                 continue
-            y[j] = y[j] + t*y[i]
-            for k in range(1, j+1):
-                H[i,k] = H[i,k] - t*H[j,k]
-            for k in range(1, n+1):
-                B[k,j] = B[k,j] + t*B[k,i]
-                
+            y[j] = y[j] + t * y[i]
+            for k in range(1, j + 1):
+                H[i, k] = H[i, k] - t * H[j, k]
+            for k in range(1, n + 1):
+                B[k, j] = B[k, j] + t * B[k, i]
+
     # Main algorithm
     for REP in range(maxsteps):
         # Step 1
         m = -1
         szmax = -1
         for i in range(1, n):
-            h = H[i,i]
-            sz = g**i * abs(h)
+            h = H[i, i]
+            sz = g ** i * abs(h)
             if sz > szmax:
                 m = i
                 szmax = sz
         # Step 2
-        y[m], y[m+1] = y[m+1], y[m]
+        y[m], y[m + 1] = y[m + 1], y[m]
         tmp = {}
-        for i in range(1,n): H[m,i], H[m+1,i] = H[m+1,i], H[m,i]
-        for i in range(1,n+1): B[i,m], B[i,m+1] = B[i,m+1], B[i,m]
+        for i in range(1, n):
+            H[m, i], H[m + 1, i] = H[m + 1, i], H[m, i]
+        for i in range(1, n + 1):
+            B[i, m], B[i, m + 1] = B[i, m + 1], B[i, m]
         # Step 3
         if m <= n - 2:
-            t0 = np.sqrt(H[m,m]**2 + H[m,m+1]**2)
+            t0 = np.sqrt(H[m, m] ** 2 + H[m, m + 1] ** 2)
             # A zero element probably indicates that the precision has
             # been exhausted. XXX: this could be spurious, due to
             # using fixed-point arithmetic
             if not t0:
                 break
-            t1 = H[m,m]/t0
-            t2 = H[m,m+1]/t0
-            for i in range(m, n+1):
-                t3 = H[i,m]
-                t4 = H[i,m+1]
-                H[i,m] = t1*t3+t2*t4
-                H[i,m+1] = -t2*t3+t1*t4
-                
+            t1 = H[m, m] / t0
+            t2 = H[m, m + 1] / t0
+            for i in range(m, n + 1):
+                t3 = H[i, m]
+                t4 = H[i, m + 1]
+                H[i, m] = t1 * t3 + t2 * t4
+                H[i, m + 1] = -t2 * t3 + t1 * t4
+
         # Step 4
-        for i in range(m+1, n+1):
-            for j in range(min(i-1, m+1), 0, -1):
+        for i in range(m + 1, n + 1):
+            for j in range(min(i - 1, m + 1), 0, -1):
                 try:
-                    t = nint(H[i,j]/H[j,j])
+                    t = nint(H[i, j] / H[j, j])
                 # Precision probably exhausted
                 except ZeroDivisionError:
                     break
-                y[j] = y[j] + t*y[i]
-                for k in range(1, j+1):
-                    H[i,k] = H[i,k] - t*H[j,k]
-                for k in range(1, n+1):
-                    B[k,j] = B[k,j] + t*B[k,i]
+                y[j] = y[j] + t * y[i]
+                for k in range(1, j + 1):
+                    H[i, k] = H[i, k] - t * H[j, k]
+                for k in range(1, n + 1):
+                    B[k, j] = B[k, j] + t * B[k, i]
         # Until a relation is found, the error typically decreases
         # slowly (e.g. a factor 1-10) with each step TODO: we could
         # compare err from two successive iterations. If there is a
@@ -227,12 +231,12 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
         # "high quality" relation was detected. Reporting this to
         # the user somehow might be useful.
         best_err = maxcoeff
-        for i in range(1, n+1):
+        for i in range(1, n + 1):
             err = abs(y[i])
             # Maybe we are done?
             if err < tol:
                 # We are done if the coefficients are acceptable
-                vec = [np.round(B[j,i], 0) for j in range(1,n+1)]
+                vec = [np.round(B[j, i], 0) for j in range(1, n + 1)]
                 if max(abs(v) for v in vec) < maxcoeff:
                     if verbose:
                         print("FOUND relation at iter %i/%i" % (REP, maxsteps))
@@ -246,19 +250,21 @@ def pslq(x, tol=1e-10, maxcoeff=1000, maxsteps=100, verbose=False):
             norm = 1 / recnorm
             norm /= 100
         else:
-            norm = maxcoeff+1
+            norm = maxcoeff + 1
         if verbose:
-            print("%i/%i:  Norm: %s, Err: %s" % (REP, maxsteps, norm, np.min(np.abs(y[1:]))))
+            print(
+                "%i/%i:  Norm: %s, Err: %s"
+                % (REP, maxsteps, norm, np.min(np.abs(y[1:])))
+            )
         if norm >= maxcoeff:
             break
     if verbose:
         print("CANCELLING after step %i/%i." % (REP, maxsteps))
         print("Could not find an integer relation. Norm bound: %s" % norm)
     return None
-    
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import doctest
+
     doctest.testmod(optionflags=doctest.ELLIPSIS)
-    
-    

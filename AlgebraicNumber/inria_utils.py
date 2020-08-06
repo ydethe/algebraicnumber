@@ -8,7 +8,7 @@ from scipy import linalg as lin
 
 
 def newton_sum(h, d):
-    '''Computes the d-th Newton's sum :math:`s_d` of the polynomial h
+    """Computes the d-th Newton's sum :math:`s_d` of the polynomial h
     
     Given the roots :math:`x_k` of h :
     
@@ -21,44 +21,45 @@ def newton_sum(h, d):
       >>> h = np.array([1, 2, 3])
       >>> for d in range(5): print(newton_sum(h, d))
       2
-      -0.6666666666666666
-      -0.2222222222222222
-      0.37037037037037035
-      -0.1728395061728395
+      -0.6666666666...
+      -0.2222222222...
+      0.37037037037...
+      -0.1728395061...
       
-    '''
+    """
     # Dh is the degree of h
     h = P.polytrim(h)
-    Dh = len(h)-1
-    
+    Dh = len(h) - 1
+
     if d == 0:
         return Dh
-        
+
     # X is the vector of the d-th Newton's sum s_d :
-    # with x_k a root of h, 
+    # with x_k a root of h,
     # s_d = x_1^d + x_2^d + ... + x_n^d
     # X = [s_1, s_2, ..., s_D]
-    A = np.zeros((Dh,Dh))
+    A = np.zeros((Dh, Dh))
     B = np.empty(Dh)
-    
+
     for r in range(Dh):
-        A[r,:r+1] = h[-1-r:]
-        B[r] = -(r+1)*h[-r-2]
-    X = lin.inv(A)@B
+        A[r, : r + 1] = h[-1 - r :]
+        B[r] = -(r + 1) * h[-r - 2]
+    X = lin.inv(A) @ B
     r = np.abs(lin.det(A))
-    
+
     if d <= Dh:
-        return X[d-1]
-        
-    a_lrs = -h[:-1]/h[-1]
-    for d in range(Dh+1,d+1):
-        sd = np.sum(a_lrs*X)
+        return X[d - 1]
+
+    a_lrs = -h[:-1] / h[-1]
+    for d in range(Dh + 1, d + 1):
+        sd = np.sum(a_lrs * X)
         X = np.hstack((X[1:], [sd]))
-        
+
     return sd
-    
-def PolynomialReverse(h:np.array, D=None) -> np.array:
-    '''
+
+
+def PolynomialReverse(h: np.array, D=None) -> np.array:
+    """
 
     h is a polynomial with integer coefficients :
 
@@ -82,14 +83,15 @@ def PolynomialReverse(h:np.array, D=None) -> np.array:
       >>> PolynomialReverse(h)
       array([3, 2, 1])
 
-    '''
+    """
     if D is None:
-        D = len(h)-1
-    rev = np.pad(h[-1::-1], (D+1-len(h),0), 'constant', constant_values=(0,0))
+        D = len(h) - 1
+    rev = np.pad(h[-1::-1], (D + 1 - len(h), 0), "constant", constant_values=(0, 0))
     return rev
 
-def LogarithmicReverse(h:np.array, D:int=None, trim_res:bool=True) -> np.array:
-    '''This function returns the logarithmic reverse rational power series associated with h, denoted LogRev(h)
+
+def LogarithmicReverse(h: np.array, D: int = None, trim_res: bool = True) -> np.array:
+    """This function returns the logarithmic reverse rational power series associated with h, denoted LogRev(h)
     The result of this function is a truncature of degree D
     
     h is a polynomial with integer coefficients :
@@ -121,78 +123,114 @@ def LogarithmicReverse(h:np.array, D:int=None, trim_res:bool=True) -> np.array:
       >>> lr[3:]
       array([ 0.37037037, -0.17283951, -0.00823045])
       
-    '''
+    """
     # Dh is the degree of the resulting h
     h = P.polytrim(h)
-    Dh = len(h)-1
-    
+    Dh = len(h) - 1
+
     if D is None:
         D = Dh
-    
-    lr = np.empty(D+1)
-    for d in range(D+1):
+
+    lr = np.empty(D + 1)
+    for d in range(D + 1):
         lr[d] = newton_sum(h, d)
-        
+
     if trim_res:
         res = P.polytrim(lr)
     else:
         res = lr
-        
+
     return res
 
 
 def PolynomialFromLogReverse(lr, D=None):
-    '''
+    """
 
     Examples:
       >>> h = np.array([2, 3, 4])
       >>> lr = LogarithmicReverse(h)
       >>> PolynomialFromLogReverse(lr)
-      array([0.5 , 0.75, 1.  ])
+      array([ 0.5 ,  0.75,  1.  ])
       
-    '''
+    """
     # D is the degree of the resulting h
     if D is None:
-        D = len(lr)-1
-    
+        D = len(lr) - 1
+
     # Computation of D - LogRev(h) as the fraction n1, d1
     dif = P.polysub([D], lr)
-    
+
     if dif[0] != 0:
         raise AssertionError(dif)
-    
+
     # D - LogRev is always dividable by X
     # n2 is the resulting fraction : 1/X.(D - LogRev(h))
     n2 = dif[1:]
     # print(110, 'n2', n2)
-    
+
     # Integrate n2
     if len(n2) == 0:
         n3 = []
     else:
         n3 = P.polyint(n2)
-    n3 = np.pad(n3, (0, D+1-len(n3)), 'constant', constant_values=(0,0))
+    n3 = np.pad(n3, (0, D + 1 - len(n3)), "constant", constant_values=(0, 0))
     # print(118, 'n3', n3)
-    
+
     # Exponentiate n3
-    n4 = np.zeros(D+1)
-    dl = np.zeros(D+1)
-    n4[0] = 1.
-    k = np.arange(D+1, dtype=np.int64)
+    n4 = np.zeros(D + 1)
+    dl = np.zeros(D + 1)
+    n4[0] = 1.0
+    k = np.arange(D + 1, dtype=np.int64)
     coeff = np.array([factorial(x) for x in k])
-    for i in range(1,D+1):
+    for i in range(1, D + 1):
         # dl : DL de exp(n3[i].x^i) a l'ordre D
-        s = slice(0,D+1,i)
-        nc = 1+D//i
+        s = slice(0, D + 1, i)
+        nc = 1 + D // i
         dl[:] = 0
-        dl[s] = n3[i]**k[:nc]/coeff[:nc]
+        dl[s] = n3[i] ** k[:nc] / coeff[:nc]
         # print(132, 'D,n4', D, n4)
-        n4 = P.polymul(n4,dl)
-        
+        n4 = P.polymul(n4, dl)
+
     # print(135, 'D,n4', D, n4)
-    return PolynomialReverse(n4[:D+1], D=D)
+    return PolynomialReverse(n4[: D + 1], D=D)
 
 
-if __name__ == '__main__':
+def inria_add(a: np.array, b: np.array) -> np.array:
+    Da = len(a) - 1
+    Db = len(b) - 1
+    D = Da * Db
+
+    Ea = np.array([1 / factorial(n) for n in range(Da + 1)])
+    Eb = np.array([1 / factorial(n) for n in range(Db + 1)])
+    E2 = np.array([1 / factorial(n) for n in range(2 * D + 1)])
+
+    la = LogarithmicReverse(a, D=D, trim_res=False)
+    lb = LogarithmicReverse(b, D=D, trim_res=False)
+
+    lp = P.polymul(la * Ea, lb * Eb) / E2
+    lp = lp[: D + 1]
+
+    coeff = PolynomialFromLogReverse(lp, D=Da * Db)
+
+    return coeff
+
+
+def inria_mul(a: np.array, b: np.array) -> np.array:
+    Da = len(a) - 1
+    Db = len(b) - 1
+    D = Da + Db
+
+    la = LogarithmicReverse(a, D=D, trim_res=False)
+    lb = LogarithmicReverse(b, D=D, trim_res=False)
+
+    lp = la * lb
+
+    coeff = PolynomialFromLogReverse(lp, D=D)
+
+    return coeff
+
+
+if __name__ == "__main__":
     import doctest
-    doctest.testmod()
+
+    doctest.testmod(optionflags=doctest.ELLIPSIS)

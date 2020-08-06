@@ -66,4 +66,3 @@ setup(
     **conf_dict["metadata"],
     cmdclass={"doc": BuildSphinxCommand,},
 )
-
