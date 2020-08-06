@@ -7,7 +7,7 @@ from numpy.polynomial import polynomial as P
 from scipy import linalg as lin
 
 
-def newton_sum(h, d):
+def newton_sum(h: np.array, d: int) -> float:
     """Computes the d-th Newton's sum :math:`s_d` of the polynomial h
     
     Given the roots :math:`x_k` of h :
@@ -17,6 +17,15 @@ def newton_sum(h, d):
     .. math::
         s_d=\sum_{k=1}^{n} x_k^d
     
+    Args:
+      h
+        Input polynomial
+      d
+        Order of the Newton's sum
+        
+    Returns:
+      The d-th Newton's sum of h's roots
+      
     Examples:
       >>> h = np.array([1, 2, 3])
       >>> for d in range(5): print(newton_sum(h, d))
@@ -58,8 +67,8 @@ def newton_sum(h, d):
     return sd
 
 
-def PolynomialReverse(h: np.array, D=None) -> np.array:
-    """
+def PolynomialReverse(h: np.array, D : int = None) -> np.array:
+    """This function returns the reverse polynomial associated with h, denoted rev(h)
 
     h is a polynomial with integer coefficients :
 
@@ -67,14 +76,18 @@ def PolynomialReverse(h: np.array, D=None) -> np.array:
 
     h is represented by the sequence [a0, a1, a2, ...]
 
-    This function returns the reverse polynomial associated with h, denoted rev(h) :
+    rev(h) is defined as follows:
 
     :math:`rev(h) = X^{deg(h)}.h(1/X)`
-
+    
+    If D is > deg(h), the reversed h will be multiplied by :math:`X^k` so that the final degree is D
+    
     Args:
       h
         The input polynomial
-
+      D
+        The degree of the output. Must be >= deg(h)
+        
     Returns:
       The reverse
 
@@ -143,19 +156,36 @@ def LogarithmicReverse(h: np.array, D: int = None, trim_res: bool = True) -> np.
     return res
 
 
-def PolynomialFromLogReverse(lr, D=None):
-    """
-
+def PolynomialFromLogReverse(lr: np.array, D: int = None) -> np.array:
+    """Given a polynomial lr which is LogRev of h, finds back h
+    
+    Args:
+      lr
+        The input polynomial
+      D
+        The degree of the original polynomial h.
+        By default, lr must have its 0 degree coefficient equal to the original polynomial's degree
+        
+    Returns:
+      The original polynomial
+      
     Examples:
       >>> h = np.array([2, 3, 4])
       >>> lr = LogarithmicReverse(h)
       >>> PolynomialFromLogReverse(lr)
       array([0.5 , 0.75, 1.  ])
       
+      >>> h = np.array([-1, 0, 1])
+      >>> lr = LogarithmicReverse(h, D=4)
+      >>> lr
+      array([2., 0., 2., 0., 2.])
+      >>> PolynomialFromLogReverse(lr, D=2)
+      array([-1.,  0.,  1.])
+      
     """
     # D is the degree of the resulting h
     if D is None:
-        D = len(lr) - 1
+        D = np.int64(lr[0])
 
     # Computation of D - LogRev(h) as the fraction n1, d1
     dif = P.polysub([D], lr)
@@ -166,16 +196,18 @@ def PolynomialFromLogReverse(lr, D=None):
     # D - LogRev is always dividable by X
     # n2 is the resulting fraction : 1/X.(D - LogRev(h))
     n2 = dif[1:]
-    # print(110, 'n2', n2)
 
     # Integrate n2
     if len(n2) == 0:
         n3 = []
     else:
         n3 = P.polyint(n2)
-    n3 = np.pad(n3, (0, D + 1 - len(n3)), "constant", constant_values=(0, 0))
-    # print(118, 'n3', n3)
-
+    
+    if D+1 > len(n3):
+        n3 = np.pad(n3, (0, D + 1 - len(n3)), "constant", constant_values=(0, 0))
+    elif D+1 < len(n3):
+        n3 = n3[:D+1]
+        
     # Exponentiate n3
     n4 = np.zeros(D + 1)
     dl = np.zeros(D + 1)
@@ -188,10 +220,8 @@ def PolynomialFromLogReverse(lr, D=None):
         nc = 1 + D // i
         dl[:] = 0
         dl[s] = n3[i] ** k[:nc] / coeff[:nc]
-        # print(132, 'D,n4', D, n4)
         n4 = P.polymul(n4, dl)
 
-    # print(135, 'D,n4', D, n4)
     return PolynomialReverse(n4[: D + 1], D=D)
 
 

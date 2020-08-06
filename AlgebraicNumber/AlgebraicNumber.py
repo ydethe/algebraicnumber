@@ -55,8 +55,7 @@ class AlgebraicNumber(object):
             z = x + 1j * y
             P = self.poly(z)
             return [np.real(P), np.imag(P)]
-
-        # print('x0', [np.real(approx),np.imag(approx)])
+            
         sol = root(fun, x0=[np.real(approx), np.imag(approx)])
         if sol.success:
             x, y = sol.x
@@ -79,8 +78,8 @@ class AlgebraicNumber(object):
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2*sqrt_3
-        >>> # p.coeff
-        # [-6, 0, 1]
+        >>> p.coeff
+        array([-6,  0,  1]...
         
         """
         Q = an_mul(self.coeff, b.coeff)
@@ -148,10 +147,10 @@ class AlgebraicNumber(object):
         
         >>> z = AlgebraicNumber.unity() + AlgebraicNumber.imaginary()
         >>> z.coeff
-        array([ 2, -2,  1])
+        array([ 2, -2,  1]...
         >>> p = z*z.conj()
         >>> # p.coeff
-        # [-2, 1]
+        # array([-2, 1]...
         
         """
         coeff = self.coeff

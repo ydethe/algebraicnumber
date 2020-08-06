@@ -1,7 +1,10 @@
 import collections
+from math import gcd
+from functools import reduce
 
 import numpy as np
 from numpy.linalg import matrix_rank
+from numpy.polynomial import polynomial as P
 import scipy.signal as sig
 import scipy.linalg as lin
 
@@ -317,11 +320,165 @@ def kron_add(a: np.array, b: np.array) -> np.array:
     return Q
 
 
+def sylvester(R,S):
+    '''
+    
+    Examples:
+      >>> R = [1, -3, 1, -3, 1]
+      >>> S = [-3, 2, -9, 4]
+      >>> m = sylvester(R, S)
+      
+    '''
+    r = P.polytrim(R)
+    s = P.polytrim(S)
+    
+    m = len(r)-1
+    n = len(s)-1
+    res = np.zeros((n+m,n+m))
+    for k in range(n):
+        res[k,k:k+m+1] = r[-1::-1]
+    for k in range(m):
+        res[k+n,k:k+n+1] = s[-1::-1]
+    
+    return res
+    
+    
+def resultant(R, S):
+    '''
+    
+    Examples:
+      >>> R = [1, -3, 1, -3, 1]
+      >>> S = [-3, 2, -9, 4]
+      >>> resultant(R, S)
+      -4563.0
+      
+    '''
+    m = sylvester(R,S)
+    return lin.det(m)
+    
+    
+def discriminant(R):
+    '''
+    
+    Examples:
+      >>> R = [1, -3, 1, -3]
+      >>> d = discriminant(R)
+      >>> d0 = -400
+      >>> np.abs(d-d0) < 1e-10
+      True
+      
+    '''
+    r = P.polytrim(R)
+    n = len(r)-1
+    
+    if ((n*(n-1))//2) % 2 == 0:
+        s = 1
+    else:
+        s = -1
+        
+    dp = P.polyder(r)
+    res = resultant(r, dp)
+    
+    dis = s*res/r[-1]
+    
+    return dis
+    
+    
+def mignotte_separation_bound(R: np.array) -> float:
+    r'''The minimum root separation for a polynomial P is defined as:
+    
+    .. math::
+        sep(P) = min(|r-s|, (r,s) \in roots(P), r \neq s)
+    
+    *In the case of a square-free polynomial R of degree d and with integer coefficients*,
+    this function gives a lower bound (Mahler, 1964) :
+    
+    .. math::
+        sep(P) > \sqrt{\frac{3.|D|}{d^{d+2}}}. || R ||_2^{1-d}
+    
+    where D is the discriminant of the polynomial
+    
+    Examples:
+      >>> R = [1, -3, 1, -3]
+      >>> b = mignotte_separation_bound(R)
+      >>> b
+      0.111...
+      
+    '''
+    r = P.polytrim(R)
+    n = len(r)-1
+    
+    d = discriminant(R)
+    sep = np.sqrt(3*np.abs(d)/n**(n+2))/lin.norm(r,ord=2)**(n-1)
+    
+    return sep
+    
+    
+def polygcd(R, S):
+    r'''
+    
+    Examples:
+      >>> R = [1, -1, 0, 0, -1, 1]
+      >>> S = [-1, 0, 0, -4, 5]
+      >>> polygcd(R, S)
+      array([-1.,  1.])
+      
+    '''
+    a = P.polytrim(R)
+    b = P.polytrim(S)
+    
+    m = len(a)-1
+    n = len(b)-1
+    
+    if n>m:
+        a,b = b,a
+        n,m = m,n
+        
+    # Here, deg(a) >= deb(b)
+    
+    while True:
+        q,r = P.polydiv(a,b)
+        
+        a,b = b,r
+        
+        if len(b) == 1 and b[0] == 0:
+            return a/a[-1]
+    
+    
+def square_free_fact(R):
+    r'''
+    
+    Examples:
+      >>> R = [1, -1, 0, 0, -1, 1]
+      >>> square_free_fact(R)
+      array([-1,  0,  0,  0,  1])
+      
+    '''
+    p = P.polytrim(R)
+    n = len(p)-1
+    
+    while True:
+        dp = P.polyder(p)
+        g = polygcd(p, dp)
+        if len(g) == 1 and g[0] == 1:
+            return np.int32(np.round(p,0))
+        
+        p,r = P.polydiv(p,g)
+        if len(r) != 1 or r[0] != 0:
+            raise AssertionError(r)
+        
+    
 def simplify(h):
-    return h
-
+    # 1. square free
+    h2 = square_free_fact(h)
+    
+    g = reduce(gcd,h2)
+    h3 = h2//g
+    
+    return h3
+    
 
 if __name__ == "__main__":
     import doctest
 
-    doctest.testmod()
+    doctest.testmod(optionflags=doctest.ELLIPSIS)
