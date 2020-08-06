@@ -6,7 +6,7 @@ from numpy.polynomial.polynomial import Polynomial
 from scipy import linalg as lin
 from numpy.polynomial import polynomial as P
 
-from AlgebraicNumber.utils import cpslq, simplify
+from AlgebraicNumber.utils import simplify, mahler_separation_bound
 
 # from AlgebraicNumber.inria_utils import inria_mul as an_mul
 # from AlgebraicNumber.inria_utils import inria_add as an_add
@@ -15,6 +15,16 @@ from AlgebraicNumber.utils import kron_add as an_add
 
 
 class AlgebraicNumber(object):
+    """
+    
+    Examples:
+      >>> a = AlgebraicNumber.imaginary()
+      >>> print(a)
+                              2
+      AlgebraicNumber(1j), 1 X + 1
+      
+    """
+
     @classmethod
     def unity(cls):
         return AlgebraicNumber([-1, 1], 1.0)
@@ -66,9 +76,37 @@ class AlgebraicNumber(object):
             raise ValueError
 
     def inverse(self):
+        ZERO = AlgebraicNumber([0, 1], 0)
+        if self == ZERO:
+            raise ZeroDivisionError
+
         coeff = self.coeff
 
         res = AlgebraicNumber(coeff[-1::-1], 1 / self.approx)
+
+        return res
+
+    def __eq__(self, b):
+        sep_a = mahler_separation_bound(self.coeff)
+        sep_b = mahler_separation_bound(b.coeff)
+        eps = min(sep_a, sep_b) / 2
+        eq = np.abs(self.approx - b.approx) < eps
+
+        return eq
+
+    def __neq__(self, b):
+        return not self.__eq__(b)
+
+    def __repr__(self):
+        p = np.poly1d(self.coeff[-1::-1], variable="X")
+        s = str(p)
+        elem = s.split("\n")
+        info = "%s(%s), " % (self.__class__.__name__, self.approx)
+        n = len(info)
+
+        res = " " * n + elem[0]
+        res += "\n"
+        res += info + elem[1]
 
         return res
 

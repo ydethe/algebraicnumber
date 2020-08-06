@@ -3,6 +3,7 @@ from math import factorial
 import numpy as np
 from numpy.polynomial import polynomial as P
 
+from AlgebraicNumber.AlgebraicNumber import AlgebraicNumber
 from AlgebraicNumber.inria_utils import *
 
 try:
@@ -21,8 +22,6 @@ class TestOperations(TestBase):
         ref = np.array([36, 0, -12, 0, 1])
 
         self.assertNpArrayAlmostEqual(coeff, ref, delta=1e-9)
-
-        # print(P.polydiv([1],[0,1]))
 
     def test_mul2(self):
         a = [-2, 0, 1]
@@ -53,6 +52,63 @@ class TestOperations(TestBase):
         ref = [0, 1]
 
         self.assertNpArrayAlmostEqual(coeff, ref, delta=1e-9)
+
+    def test_add3(self):
+        a = AlgebraicNumber([-2, 0, 1], np.sqrt(2))
+        b = AlgebraicNumber([-2, 0, 1], -np.sqrt(2))
+
+        z = a + b
+
+        ref = np.array([0, 1])
+
+        self.assertNpArrayAlmostEqual(z.coeff, ref, delta=1e-9)
+
+    def test_sub(self):
+        a = AlgebraicNumber([-2, 0, 1], np.sqrt(2))
+        b = AlgebraicNumber([-2, 0, 1], -np.sqrt(2))
+
+        z = a - b
+
+        ref = np.array([-8, 0, 1])
+        self.assertNpArrayAlmostEqual(z.coeff, ref, delta=1e-9)
+
+    def test_div(self):
+        a = AlgebraicNumber([-2, 0, 1], np.sqrt(2))
+        b = AlgebraicNumber([-2, 0, 1], -np.sqrt(2))
+
+        z = a / b
+
+        ref = np.array([1, 1])
+
+        self.assertNpArrayAlmostEqual(z.coeff, ref, delta=1e-9)
+
+    def test_div2(self):
+        a = AlgebraicNumber([-2, 0, 1], np.sqrt(2))
+        b = AlgebraicNumber.zero()
+
+        def test_div(a, b):
+            return a / b
+
+        self.assertRaises(ZeroDivisionError, test_div, a, b)
+
+    def test_cycle(self):
+        n = 5
+        a = AlgebraicNumber([-1] + [0] * (n - 1) + [1], np.exp(1j * 2 * np.pi / n))
+
+        ref = np.array([1, 1, 1, 1, 1])
+        self.assertNpArrayAlmostEqual(a.coeff, ref, delta=1e-9)
+
+        z = AlgebraicNumber.unity()
+
+        z2 = AlgebraicNumber.constant(2)
+        ref = np.array([-2, 1])
+        self.assertNpArrayAlmostEqual(z2.coeff, ref, delta=1e-9)
+
+        for i in range(n):
+            z = z * a
+
+        ref = np.array([-1, 1])
+        self.assertNpArrayAlmostEqual(z.coeff, ref, delta=1e-9)
 
     def test_log_reverse(self):
         a = [-2, 0, 1]
