@@ -579,7 +579,7 @@ def simplify(h, root, tol=1e-9):
     if res.ok != 0:
         raise AssertionError(str(res), h3, h4)
 
-    h5 = np.int32(np.real(h4))
+    h5 = np.int32(np.round(np.real(h4), 0))
 
     # Suppressing the first null coefficients
     n = len(h5) - 1
