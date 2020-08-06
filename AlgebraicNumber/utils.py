@@ -1,5 +1,5 @@
 import collections
-from math import gcd, factorial, modf
+from math import gcd, factorial
 from functools import reduce
 from itertools import combinations
 
@@ -525,8 +525,10 @@ def is_poly_valid(h, tol):
             res.ok = 1
             break
 
-        d, _ = modf(np.real(hk))
-        if np.abs(d) > tol:
+        xk = np.real(hk)
+        d = np.abs(xk - np.round(xk, 0))
+        if d > tol:
+            res.d = d
             res.ok = 2
             break
 
