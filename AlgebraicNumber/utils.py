@@ -156,7 +156,7 @@ def haroldgcd(*args) -> np.array:
       >>> P3 = [1, 20, 180, 960, 3360, 8064, 13440, 15360, 11520, 5120, 1024]
       >>> a = haroldgcd(P1, P2, P3)
       >>> a
-      array([ 1.,  2.])
+      array([1., 2.])
       
     .. warning:: It uses the LU factorization of the Sylvester matrix.
                  Use responsibly. It does not check any certificate of

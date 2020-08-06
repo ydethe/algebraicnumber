@@ -150,7 +150,7 @@ def PolynomialFromLogReverse(lr, D=None):
       >>> h = np.array([2, 3, 4])
       >>> lr = LogarithmicReverse(h)
       >>> PolynomialFromLogReverse(lr)
-      array([ 0.5 ,  0.75,  1.  ])
+      array([0.5 , 0.75, 1.  ])
       
     """
     # D is the degree of the resulting h
