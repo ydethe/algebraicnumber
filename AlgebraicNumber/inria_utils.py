@@ -27,7 +27,7 @@ def newton_sum(h: np.array, d: int) -> float:
       The d-th Newton's sum of h's roots
       
     Examples:
-      >>> h = np.array([1, 2, 3]...
+      >>> h = np.array([1, 2, 3])
       >>> for d in range(5): print(newton_sum(h, d))
       2
       -0.6666666666...
