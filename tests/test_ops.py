@@ -100,7 +100,7 @@ class TestOperations(TestBase):
 
         z = AlgebraicNumber.unity()
 
-        z2 = AlgebraicNumber.constant(2)
+        z2 = AlgebraicNumber.integer(2)
         ref = np.array([-2, 1])
         self.assertNpArrayAlmostEqual(z2.coeff, ref, delta=1e-9)
 

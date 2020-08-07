@@ -34,10 +34,8 @@ class AlgebraicNumber(object):
         return AlgebraicNumber([0, 1], 0)
 
     @classmethod
-    def constant(cls, a):
-        b = -2 * np.real(a)
-        c = np.abs(a) ** 2
-        return AlgebraicNumber([c, b, 1], a)
+    def integer(cls, a):
+        return AlgebraicNumber([-a, 1], a)
 
     @classmethod
     def imaginary(cls):
