@@ -2,7 +2,6 @@ import math
 
 import numpy as np
 from scipy.optimize import root
-from numpy.polynomial.polynomial import Polynomial
 from scipy import linalg as lin
 from numpy.polynomial import polynomial as P
 
@@ -43,7 +42,7 @@ class AlgebraicNumber(object):
 
     def __init__(self, coeff, approx, _nosimp=False):
         self.coeff = coeff
-        self.poly = Polynomial(coeff)
+        self.poly = P.Polynomial(coeff)
         self.approx = self.eval(approx)
         if not _nosimp:
             self._simplify()
@@ -52,7 +51,7 @@ class AlgebraicNumber(object):
         c = simplify(self.coeff, self.approx)
 
         self.coeff = c
-        self.poly = Polynomial(c)
+        self.poly = P.Polynomial(c)
 
     def eval(self, approx=None):
         if approx is None:
@@ -72,6 +71,35 @@ class AlgebraicNumber(object):
         else:
             print(sol)
             raise ValueError
+    
+    def plotRoots(self, axe=None, **kwargs):
+        '''Plots the roots of the minimal polynomial of the number
+        
+        Args:
+          axe
+            If given, a matplotlib axe to draw on. By default, plotRoots creates it
+          kwargs
+            List of arguments to format the plot. Must not specify linestyle.
+            
+        '''
+        if axe is None:
+            import matplotlib.pyplot as plt
+            fig = plt.figure()
+            axe = fig.add_subplot(111)
+            axe.grid(True)
+            show = True
+        else:
+            show = False
+        
+        if not 'marker' in kwargs.keys():
+            kwargs['marker'] = 'o'
+            
+        rc = P.polyroots(self.coeff)
+        axe.plot(np.real(rc), np.imag(rc), linestyle='', **kwargs)
+        axe.plot([np.real(self.approx)], [np.imag(self.approx)], linestyle='', marker='*')
+        
+        if show:
+            plt.show()
 
     def inverse(self):
         ZERO = AlgebraicNumber([0, 1], 0)
