@@ -279,12 +279,12 @@ def polycomp(R, S):
     sp = [1]
     for rk in r:
         if rk != 0:
-            res = P.polyadd(res, P.polymul([rk],sp))
+            res = P.polyadd(res, P.polymul([rk], sp))
         sp = P.polymul(sp, s)
-        
+
     return res
-    
-    
+
+
 def npolymul(*polynomials):
     res = [1]
     for q in polynomials:
@@ -377,4 +377,3 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod(optionflags=doctest.ELLIPSIS)
-    

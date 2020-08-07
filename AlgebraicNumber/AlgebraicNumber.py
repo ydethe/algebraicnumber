@@ -5,7 +5,7 @@ from scipy.optimize import root
 from scipy import linalg as lin
 from numpy.polynomial import polynomial as P
 
-from AlgebraicNumber.utils import simplify, mahler_separation_bound
+from AlgebraicNumber.utils import polycomp, simplify, mahler_separation_bound
 
 # from AlgebraicNumber.inria_utils import inria_mul as an_mul
 # from AlgebraicNumber.inria_utils import inria_add as an_add
@@ -71,9 +71,9 @@ class AlgebraicNumber(object):
         else:
             print(sol)
             raise ValueError
-    
+
     def plotRoots(self, axe=None, **kwargs):
-        '''Plots the roots of the minimal polynomial of the number
+        """Plots the roots of the minimal polynomial of the number
         
         Args:
           axe
@@ -81,33 +81,68 @@ class AlgebraicNumber(object):
           kwargs
             List of arguments to format the plot. Must not specify linestyle.
             
-        '''
+        """
         if axe is None:
             import matplotlib.pyplot as plt
+
             fig = plt.figure()
             axe = fig.add_subplot(111)
             axe.grid(True)
             show = True
         else:
             show = False
-        
-        if not 'marker' in kwargs.keys():
-            kwargs['marker'] = 'o'
-            
+
+        if not "marker" in kwargs.keys():
+            kwargs["marker"] = "o"
+
         rc = P.polyroots(self.coeff)
-        axe.plot(np.real(rc), np.imag(rc), linestyle='', **kwargs)
-        axe.plot([np.real(self.approx)], [np.imag(self.approx)], linestyle='', marker='*')
-        
+        axe.plot(np.real(rc), np.imag(rc), linestyle="", **kwargs)
+        axe.plot(
+            [np.real(self.approx)], [np.imag(self.approx)], linestyle="", marker="*"
+        )
+
         if show:
             plt.show()
 
-    def inverse(self):
+    def pow(self, p: int, q: int = 1) -> "AlgebraicNumber":
+        r"""If :math:`\alpha` is an alebraic number, computes 
+        
+        .. math::
+            \alpha^{p/q}
+        
+        Examples:
+          >>> a = AlgebraicNumber([-2, 0, 1], 1.414)
+          >>> a.pow(2)
+          <BLANKLINE>
+          AlgebraicNumber((2+0j)), 1 X - 2
+          >>> a.pow(1,2)
+                                                      4
+          AlgebraicNumber((1.189207115002721+0j)), 1 X - 2
+          
+        """
+        if q == 0:
+            raise ZeroDivisionError
+
+        res = AlgebraicNumber.unity()
+        for i in range(p):
+            res = res * self
+
+        h = res.coeff
+        Xq = [0] * q + [1]
+
+        res = polycomp(h, Xq)
+
+        res = AlgebraicNumber(res, self.approx ** (p / q))
+
+        return res
+
+    def inverse(self) -> "AlgebraicNumber":
         ZERO = AlgebraicNumber.zero()
         if self == ZERO:
             raise ZeroDivisionError
-            
+
         coeff = self.coeff
-        
+
         res = AlgebraicNumber(coeff[-1::-1], 1 / self.approx)
 
         return res
