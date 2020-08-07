@@ -35,6 +35,7 @@ test:
   stage: test
   script:
     - python3 -m pip install tox setuptools docutils
+    - ls -l
     - tox -e py35
   artifacts:
     paths:
