@@ -35,6 +35,7 @@ test:
   stage: test
   script:
     - python3 -m pip install tox setuptools docutils codecov
+    - tox --version
     - tox -e py35
     - codecov
   artifacts:
