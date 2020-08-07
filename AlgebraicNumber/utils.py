@@ -262,6 +262,29 @@ def polytrans(R, a):
     return q
 
 
+def polycomp(R, S):
+    r"""Computes R(S(X))
+    
+    Examples:
+      >>> R = [1, -1, 1]
+      >>> S = [-4, 5]
+      >>> polycomp(R, S)
+      array([ 21., -45.,  25.]...
+      
+    """
+    r = P.polytrim(R)
+    s = P.polytrim(S)
+
+    res = [0]
+    sp = [1]
+    for rk in r:
+        if rk != 0:
+            res = P.polyadd(res, P.polymul([rk],sp))
+        sp = P.polymul(sp, s)
+        
+    return res
+    
+    
 def npolymul(*polynomials):
     res = [1]
     for q in polynomials:
@@ -275,32 +298,19 @@ def is_poly_valid(h, tol):
     * be integers
     """
 
-    class CheckResult:
-        def __str__(self):
-            res = []
-            for k in self.__dict__.keys():
-                res.append("%s=%s" % (k, self.__dict__[k]))
-            return ",".join(res)
-
-    res = CheckResult()
-
-    res.ok = 0
+    ok = 0
     for k, hk in enumerate(h):
-        res.k = k
-        res.hk = hk
-
         if np.abs(np.imag(hk)) > tol:
-            res.ok = 1
+            ok = 1
             break
 
         xk = np.real(hk)
         d = np.abs(xk - np.round(xk, 0))
         if d > tol:
-            res.d = d
-            res.ok = 2
+            ok = 2
             break
 
-    return res
+    return ok
 
 
 def simplify(h, root, tol=1e-7):
@@ -336,16 +346,16 @@ def simplify(h, root, tol=1e-7):
             h4 = npolymul(*[[-x, 1] for x in c])
             h4 = P.polymul(h4, [-root * h3[-1], h3[-1]])
 
-            res = is_poly_valid(h4, tol)
+            ok = is_poly_valid(h4, tol)
 
-            if res.ok == 0:
+            if ok == 0:
                 break
 
-        if res.ok == 0:
+        if ok == 0:
             break
 
-    if res.ok != 0:
-        raise AssertionError(str(res), h3, h4)
+    if ok != 0:
+        raise AssertionError(ok, h3, h4)
 
     h5 = np.int32(np.round(np.real(h4), 0))
 
@@ -367,3 +377,4 @@ if __name__ == "__main__":
     import doctest
 
     doctest.testmod(optionflags=doctest.ELLIPSIS)
+    

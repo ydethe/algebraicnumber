@@ -102,12 +102,12 @@ class AlgebraicNumber(object):
             plt.show()
 
     def inverse(self):
-        ZERO = AlgebraicNumber([0, 1], 0)
+        ZERO = AlgebraicNumber.zero()
         if self == ZERO:
             raise ZeroDivisionError
-
+            
         coeff = self.coeff
-
+        
         res = AlgebraicNumber(coeff[-1::-1], 1 / self.approx)
 
         return res

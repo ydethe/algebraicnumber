@@ -1,4 +1,5 @@
 from math import factorial
+from unittest.mock import Mock
 
 import numpy as np
 from numpy.polynomial import polynomial as P
@@ -109,7 +110,14 @@ class TestOperations(TestBase):
 
         ref = np.array([-1, 1])
         self.assertNpArrayAlmostEqual(z.coeff, ref, delta=1e-9)
-
+    
+    def test_plot_roots(self):
+        n = 5
+        a = AlgebraicNumber([-1] + [0] * (n - 1) + [1], np.exp(1j * 2 * np.pi / n))
+        
+        axe = Mock()
+        a.plotRoots(axe)
+        
     def test_log_reverse(self):
         a = [-2, 0, 1]
         D = 10
