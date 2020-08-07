@@ -36,7 +36,6 @@ extensions = [
     "sphinxcontrib.apidoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
-    "m2r2",
 ]
 
 apidoc_module_dir = "../AlgebraicNumber"
@@ -51,7 +50,7 @@ templates_path = ["_templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = [".rst", ".md"]
+source_suffix = [".rst"]
 
 # The encoding of source files.
 #
