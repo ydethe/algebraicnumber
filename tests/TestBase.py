@@ -45,3 +45,13 @@ class TestBase(unittest.TestCase):
         assert_allclose(
             actual, desired, atol=delta, equal_nan=False, err_msg="", verbose=True
         )
+
+    def assertQPolynomialEqual(self, actual, desired):
+        pa,qa = actual.getCoefficientsAsNumDen()
+        pd,qd = desired.getCoefficientsAsNumDen()
+        
+        self.assertNpArrayAlmostEqual(pa,pd, delta=0)
+        self.assertNpArrayAlmostEqual(qa,qd, delta=0)
+        
+        
+        

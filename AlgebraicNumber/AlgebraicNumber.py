@@ -3,14 +3,11 @@ import math
 import numpy as np
 from scipy.optimize import root
 from scipy import linalg as lin
-from numpy.polynomial import polynomial as P
 
-from AlgebraicNumber.utils import polycomp, simplify, mahler_separation_bound
-
-# from AlgebraicNumber.inria_utils import inria_mul as an_mul
-# from AlgebraicNumber.inria_utils import inria_add as an_add
-from AlgebraicNumber.utils import kron_mul as an_mul
-from AlgebraicNumber.utils import kron_add as an_add
+from AlgebraicNumber.QPolynomial import QPolynomial
+from AlgebraicNumber.utils import *
+from AlgebraicNumber.inria_utils import inria_mul as an_mul
+from AlgebraicNumber.inria_utils import inria_add as an_add
 
 
 class AlgebraicNumber(object):
@@ -41,18 +38,25 @@ class AlgebraicNumber(object):
         return AlgebraicNumber([1, 0, 1], 1j)
 
     def __init__(self, coeff, approx, _nosimp=False):
-        self.coeff = coeff
-        self.poly = P.Polynomial(coeff)
+        if isinstance(coeff, QPolynomial):
+            self.poly = coeff
+        else:
+            self.poly = QPolynomial(p_coeff=coeff)
+            
         self.approx = self.eval(approx)
         if not _nosimp:
             self._simplify()
 
     def _simplify(self):
-        c = simplify(self.coeff, self.approx)
-
-        self.coeff = c
-        self.poly = P.Polynomial(c)
-
+        self.poly = simplify(self.poly, self.approx)
+        
+    @property
+    def coeff(self):
+        p,q = self.poly.getCoefficientsAsNumDen()
+        if np.any(q != 1):
+            raise AssertionError(q)
+        return p
+        
     def eval(self, approx=None):
         if approx is None:
             approx = self.approx
@@ -95,7 +99,7 @@ class AlgebraicNumber(object):
         if not "marker" in kwargs.keys():
             kwargs["marker"] = "o"
 
-        rc = P.polyroots(self.coeff)
+        rc = self.poly.roots()
         axe.plot(np.real(rc), np.imag(rc), linestyle="", **kwargs)
         axe.plot(
             [np.real(self.approx)], [np.imag(self.approx)], linestyle="", marker="*"
@@ -127,11 +131,11 @@ class AlgebraicNumber(object):
         for i in range(p):
             res = res * self
 
-        h = res.coeff
-        Xq = [0] * q + [1]
+        h = res.poly
+        Xq = QPolynomial(p_coeff=[0] * q + [1])
 
-        res = polycomp(h, Xq)
-
+        res = h.compose(Xq)
+        
         res = AlgebraicNumber(res, self.approx ** (p / q))
 
         return res
@@ -141,15 +145,17 @@ class AlgebraicNumber(object):
         if self == ZERO:
             raise ZeroDivisionError
 
-        coeff = self.coeff
-
-        res = AlgebraicNumber(coeff[-1::-1], 1 / self.approx)
+        p,q = self.poly.getCoefficientsAsNumDen()
+        if np.any(q != 1):
+            raise AssertionError(q)
+            
+        res = AlgebraicNumber(p[-1::-1], 1 / self.approx)
 
         return res
 
     def __eq__(self, b):
-        sep_a = mahler_separation_bound(self.coeff)
-        sep_b = mahler_separation_bound(b.coeff)
+        sep_a = self.poly.mahler_separation_bound()
+        sep_b = b.poly.mahler_separation_bound()
         eps = min(sep_a, sep_b) / 2
         eq = np.abs(self.approx - b.approx) < eps
 
@@ -157,9 +163,12 @@ class AlgebraicNumber(object):
 
     def __neq__(self, b):
         return not self.__eq__(b)
-
+        
     def __repr__(self):
-        p = np.poly1d(self.coeff[-1::-1], variable="X")
+        h1 = self.poly.getCoefficientsAsFraction()
+        lq = np.array([x.numerator for x in h1], dtype=np.int64)
+        
+        p = np.poly1d(lq[-1::-1], variable="X")
         s = str(p)
         elem = s.split("\n")
         info = "%s(%s), " % (self.__class__.__name__, self.approx)
@@ -177,11 +186,12 @@ class AlgebraicNumber(object):
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2*sqrt_3
-        >>> p.coeff
-        array([-6,  0,  1]...
+        >>> p.poly
+        [-6  0  1]
+        [1 1 1]
         
         """
-        Q = an_mul(self.coeff, b.coeff)
+        Q = an_mul(self.poly, b.poly)
 
         res = AlgebraicNumber(Q, self.approx * b.approx)
 
@@ -193,8 +203,9 @@ class AlgebraicNumber(object):
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2/sqrt_3
-        >>> p.coeff
-        array([-2,  0,  3]...
+        >>> p.poly
+        [-2  0  3]
+        [1 1 1]
         
         """
         ib = b.inverse()
@@ -205,37 +216,36 @@ class AlgebraicNumber(object):
         
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> p = -sqrt_2
-        >>> p.coeff
-        array([-2,  0,  1]...
+        >>> p.poly
+        [-2  0  1]
+        [1 1 1]
         
         """
-        n = len(self.coeff)
-        coeff = np.array(self.coeff)
-
-        R = coeff * (-1) ** np.arange(n)
-
-        res = AlgebraicNumber(list(R), -self.approx)
+        mx = QPolynomial(p_coeff=[0,-1])
+        p2 = self.poly.compose(mx)
+        
+        res = AlgebraicNumber(p2, -self.approx)
 
         return res
 
     def __sub__(self, b):
         nb = -b
         return self + nb
-
+        
     def __add__(self, b):
         """
         
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2+sqrt_3
-        >>> p.coeff
+        >>> p.poly
         array([  1,   0, -10,   0,   1]...
         >>> ref = np.sqrt(2) + np.sqrt(3)
         >>> np.abs(p.approx - ref) < 1e-10
         True
         
         """
-        Q = an_add(self.coeff, b.coeff)
+        Q = an_add(self.poly, b.poly)
 
         res = AlgebraicNumber(Q, self.approx + b.approx)
 
@@ -245,17 +255,15 @@ class AlgebraicNumber(object):
         """
         
         >>> z = AlgebraicNumber.unity() + AlgebraicNumber.imaginary()
-        >>> z.coeff
+        >>> z.poly
         array([ 2, -2,  1]...
         >>> p = z*z.conj()
-        >>> p.coeff
+        >>> p.poly
         array([-2,  1]...
         
         """
-        coeff = self.coeff
-
-        res = AlgebraicNumber(coeff, np.conj(self.approx))
-
+        res = AlgebraicNumber(self.poly, np.conj(self.approx))
+        
         return res
 
 

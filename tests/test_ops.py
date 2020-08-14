@@ -78,7 +78,7 @@ class TestOperations(TestBase):
         axe = Mock()
         a.plotRoots(axe)
 
-    def test_ramanujan(self):
+    def ntest_ramanujan(self):
         # a = AlgebraicNumber([-1, 0, 0, 9], 9**(-1/3))
         # b = AlgebraicNumber([-2, 0, 0, 9], (2/9)**(1/3))
         # c = AlgebraicNumber([-4, 0, 0, 9], (4/9)**(1/3))
