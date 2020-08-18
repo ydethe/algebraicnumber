@@ -42,21 +42,21 @@ class AlgebraicNumber(object):
             self.poly = coeff
         else:
             self.poly = QPolynomial(p_coeff=coeff)
-            
+
         self.approx = self.eval(approx)
         if not _nosimp:
             self._simplify()
 
     def _simplify(self):
         self.poly = simplify(self.poly, self.approx)
-        
+
     @property
     def coeff(self):
-        p,q = self.poly.getCoefficientsAsNumDen()
+        p, q = self.poly.getCoefficientsAsNumDen()
         if np.any(q != 1):
             raise AssertionError(q)
         return p
-        
+
     def eval(self, approx=None):
         if approx is None:
             approx = self.approx
@@ -135,7 +135,7 @@ class AlgebraicNumber(object):
         Xq = QPolynomial(p_coeff=[0] * q + [1])
 
         res = h.compose(Xq)
-        
+
         res = AlgebraicNumber(res, self.approx ** (p / q))
 
         return res
@@ -145,10 +145,10 @@ class AlgebraicNumber(object):
         if self == ZERO:
             raise ZeroDivisionError
 
-        p,q = self.poly.getCoefficientsAsNumDen()
+        p, q = self.poly.getCoefficientsAsNumDen()
         if np.any(q != 1):
             raise AssertionError(q)
-            
+
         res = AlgebraicNumber(p[-1::-1], 1 / self.approx)
 
         return res
@@ -163,11 +163,11 @@ class AlgebraicNumber(object):
 
     def __neq__(self, b):
         return not self.__eq__(b)
-        
+
     def __repr__(self):
         h1 = self.poly.getCoefficientsAsFraction()
         lq = np.array([x.numerator for x in h1], dtype=np.int64)
-        
+
         p = np.poly1d(lq[-1::-1], variable="X")
         s = str(p)
         elem = s.split("\n")
@@ -221,9 +221,9 @@ class AlgebraicNumber(object):
         [1 1 1]
         
         """
-        mx = QPolynomial(p_coeff=[0,-1])
+        mx = QPolynomial(p_coeff=[0, -1])
         p2 = self.poly.compose(mx)
-        
+
         res = AlgebraicNumber(p2, -self.approx)
 
         return res
@@ -231,7 +231,7 @@ class AlgebraicNumber(object):
     def __sub__(self, b):
         nb = -b
         return self + nb
-        
+
     def __add__(self, b):
         """
         
@@ -263,7 +263,7 @@ class AlgebraicNumber(object):
         
         """
         res = AlgebraicNumber(self.poly, np.conj(self.approx))
-        
+
         return res
 
 

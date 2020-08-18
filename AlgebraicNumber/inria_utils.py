@@ -18,13 +18,13 @@ def inria_add(a: QPolynomial, b: QPolynomial) -> QPolynomial:
     Ea = QPolynomial(q_coeff=[factorial(n) for n in range(Da + 1)])
     Eb = QPolynomial(q_coeff=[factorial(n) for n in range(Db + 1)])
     E2 = QPolynomial(q_coeff=[factorial(n) for n in range(2 * D + 1)])
-    
+
     la = a.LogRev(D=D)
     lb = b.LogRev(D=D)
-    
+
     lea = la.termWiseMul(Ea)
     leb = lb.termWiseMul(Eb)
-    q = lea*leb
+    q = lea * leb
     lp = q.termWiseDiv(E2)
     # lp = P.polymul(la * Ea, lb * Eb) / E2
     # lp = lp[: D + 1]

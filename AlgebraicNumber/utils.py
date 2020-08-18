@@ -18,8 +18,8 @@ def prod(*iterable, start=1):
     for i in iterable:
         start = start * i
     return start
-    
-    
+
+
 def is_poly_valid(h, tol):
     """The coeficients of the polynomial h must:
     * have no imaginary part
@@ -46,9 +46,9 @@ def npolymul(*polynomials):
     for q in polynomials:
         res = P.polymul(res, q)
     return res
-    
-    
-def simplify(h:'QPolynomial', root:np.complex64, tol:float=1e-7) -> 'QPolynomial':
+
+
+def simplify(h: "QPolynomial", root: np.complex64, tol: float = 1e-7) -> "QPolynomial":
     r"""
     
     Examples:
@@ -63,14 +63,15 @@ def simplify(h:'QPolynomial', root:np.complex64, tol:float=1e-7) -> 'QPolynomial
       
     """
     from AlgebraicNumber.QPolynomial import QPolynomial
+
     # 1. square free
     h1 = h.squareFreeFact().getCoefficientsAsFraction()
     lq = np.array([x.denominator for x in h1], dtype=np.int64)
-    ppcm = reduce(lambda x, y:(x*y)//gcd(x,y), lq)
-    
+    ppcm = reduce(lambda x, y: (x * y) // gcd(x, y), lq)
+
     h2 = np.array([x.numerator for x in h1], dtype=np.int64)
-    h2 *= (ppcm//lq)
-    
+    h2 *= ppcm // lq
+
     g = reduce(gcd, h2)
     h3 = h2 // g
 

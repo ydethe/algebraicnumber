@@ -20,7 +20,7 @@ class TestINRIA(TestBase):
         b = QPolynomial(p_coeff=[-3, 0, 1])
 
         coeff = inria_mul(a, b)
-        
+
         ref = QPolynomial(p_coeff=[36, 0, -12, 0, 1])
 
         self.assertQPolynomialEqual(coeff, ref)
@@ -62,12 +62,12 @@ class TestINRIA(TestBase):
             while p[-1] == 0:
                 p = np.random.randint(low=-5, high=5, size=n)
             q = np.random.randint(low=1, high=5, size=n)
-            
+
             h = QPolynomial(p_coeff=p, q_coeff=q)
             lr = h.LogRev()
             h2 = lr.InvertLogRev()
-            
-            self.assertQPolynomialEqual(h, h2*h[-1])
+
+            self.assertQPolynomialEqual(h, h2 * h[-1])
 
 
 if __name__ == "__main__":

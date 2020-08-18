@@ -8,132 +8,133 @@ import scipy.linalg as lin
 
 from AlgebraicNumber.utils import nCr
 
- 
-class QPolynomial (object):
-    r'''Class the represents polynomial with rational coefficients
+
+class QPolynomial(object):
+    r"""Class the represents polynomial with rational coefficients
     
     Most implemented methods work with rational numbers, so that their result is exact.
     
-    '''
+    """
+
     def __init__(self, coeff=None, p_coeff=None, q_coeff=None, check=True):
         if not coeff is None:
             if check:
                 for c in coeff:
-                    if not isinstance(c,Fraction):
+                    if not isinstance(c, Fraction):
                         raise AssertionError("Not a Fraction", c)
             self.__p_coeff = np.int64([x.numerator for x in coeff])
             self.__q_coeff = np.int64([x.denominator for x in coeff])
         elif not p_coeff is None and not q_coeff is None:
-            self.__p_coeff = np.int64(np.round(p_coeff,0))
-            self.__q_coeff = np.int64(np.round(q_coeff,0))
+            self.__p_coeff = np.int64(np.round(p_coeff, 0))
+            self.__q_coeff = np.int64(np.round(q_coeff, 0))
         elif not p_coeff is None and q_coeff is None:
             n = len(p_coeff)
-            self.__p_coeff = np.int64(np.round(p_coeff,0))
+            self.__p_coeff = np.int64(np.round(p_coeff, 0))
             self.__q_coeff = np.ones(n, dtype=np.int64)
         elif p_coeff is None and not q_coeff is None:
             n = len(q_coeff)
             self.__p_coeff = np.ones(n, dtype=np.int64)
-            self.__q_coeff = np.int64(np.round(q_coeff,0))
+            self.__q_coeff = np.int64(np.round(q_coeff, 0))
         elif p_coeff is None and q_coeff is None:
             self.__p_coeff = np.array([], dtype=np.int64)
             self.__q_coeff = np.array([], dtype=np.int64)
-            
+
         self.__simplify()
-        
+
     def __simplify(self):
         # Trimming the null high order coefficients
         n = len(self.__p_coeff)
         for i in reversed(range(n)):
             if self.__p_coeff[i] != 0:
-                self.__p_coeff = self.__p_coeff[:i+1]
-                self.__q_coeff = self.__q_coeff[:i+1]
+                self.__p_coeff = self.__p_coeff[: i + 1]
+                self.__q_coeff = self.__q_coeff[: i + 1]
                 break
             elif i == 0:
                 self.__p_coeff = np.array([], dtype=np.int64)
                 self.__q_coeff = np.array([], dtype=np.int64)
-                
+
         # Reducing the coefficients
         n = len(self.__p_coeff)
         for i in range(n):
             p = self.__p_coeff[i]
             q = self.__q_coeff[i]
-            d = gcd(p,q)
+            d = gcd(p, q)
             if q < 0:
                 d *= -1
-            self.__p_coeff[i] = p//d
-            self.__q_coeff[i] = q//d
-        
+            self.__p_coeff[i] = p // d
+            self.__q_coeff[i] = q // d
+
         if len(self.__p_coeff) > 0 and self.__p_coeff[-1] == 0:
             raise AssertionError()
-            
+
     def getCoefficientsAsFraction(self):
-        '''Returns the degree of the polynomial
+        """Returns the degree of the polynomial
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
           >>> print(p.getCoefficientsAsFraction())
           [Fraction(3, 4), Fraction(-2, 7), Fraction(1, 2)]
           
-        '''
-        res = [Fraction(p,q) for (p,q) in zip(self.__p_coeff,self.__q_coeff)]
+        """
+        res = [Fraction(p, q) for (p, q) in zip(self.__p_coeff, self.__q_coeff)]
         return res
-            
+
     def getCoefficientsAsNumDen(self):
-        '''Returns the degree of the polynomial
+        """Returns the degree of the polynomial
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
           >>> print(p.getCoefficientsAsNumDen())
           (array([ 3, -2,  1]..., array([4, 7, 2]...)
           
-        '''
-        return self.__p_coeff.copy(),self.__q_coeff.copy()
-        
+        """
+        return self.__p_coeff.copy(), self.__q_coeff.copy()
+
     def __repr__(self):
         s = str(self.__p_coeff)
-        s += '\n'
+        s += "\n"
         s += str(self.__q_coeff)
         return s
-        
+
     def deg(self):
-        '''Returns the degree of the polynomial
+        """Returns the degree of the polynomial
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
           >>> p.deg()
           2
           
-        '''
-        return len(self)-1
-    
+        """
+        return len(self) - 1
+
     def __len__(self):
         return len(self.__p_coeff)
-    
+
     def __getitem__(self, n):
         p = self.__p_coeff[n]
         q = self.__q_coeff[n]
-        
+
         res = Fraction(p, q)
-        
+
         return res
-        
+
     def __truediv__(self, b):
         if b == 0:
             raise ZeroDivisionError
-            
-        if isinstance(b,Fraction):
+
+        if isinstance(b, Fraction):
             p = b.numerator
             q = b.denominator
         else:
             p = np.int64(b)
             q = 1
-            
-        res = QPolynomial(p_coeff = self.__p_coeff*q, q_coeff = self.__q_coeff*p)
-        
+
+        res = QPolynomial(p_coeff=self.__p_coeff * q, q_coeff=self.__q_coeff * p)
+
         return res
-        
+
     def __add__(self, b):
-        '''
+        """
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
@@ -146,17 +147,17 @@ class QPolynomial (object):
           [ 1 -1]
           [4 1]
           
-        '''
-        if not isinstance(b,QPolynomial) and not hasattr(b,'__iter__'):
+        """
+        if not isinstance(b, QPolynomial) and not hasattr(b, "__iter__"):
             b = QPolynomial(coeff=[b])
-            
+
         na = len(self)
         nb = len(b)
-        
+
         n = max(na, nb)
         p_res = np.empty(n)
         q_res = np.empty(n)
-        
+
         for i in range(n):
             if i < na and i < nb:
                 r = self[i] + b[i]
@@ -166,16 +167,16 @@ class QPolynomial (object):
                 r = b[i]
             else:
                 r = Fraction(0, 1)
-                
+
             p_res[i] = r.numerator
             q_res[i] = r.denominator
-        
-        res = QPolynomial(p_coeff = p_res, q_coeff = q_res)
-        
+
+        res = QPolynomial(p_coeff=p_res, q_coeff=q_res)
+
         return res
-        
+
     def __neg__(self):
-        '''
+        """
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
@@ -183,13 +184,13 @@ class QPolynomial (object):
           [-3  2 -1]
           [4 7 2]
           
-        '''
-        res = QPolynomial(p_coeff = -self.__p_coeff, q_coeff = self.__q_coeff)
-        
+        """
+        res = QPolynomial(p_coeff=-self.__p_coeff, q_coeff=self.__q_coeff)
+
         return res
-        
+
     def __sub__(self, b):
-        '''
+        """
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
@@ -201,16 +202,16 @@ class QPolynomial (object):
           []
           []
           
-        '''
-        if not isinstance(b,QPolynomial) and not hasattr(b,'__iter__'):
+        """
+        if not isinstance(b, QPolynomial) and not hasattr(b, "__iter__"):
             b = QPolynomial(coeff=[b])
-            
+
         mb = -b
-        
+
         return self + mb
-        
+
     def __mul__(self, b):
-        '''
+        """
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
@@ -223,81 +224,81 @@ class QPolynomial (object):
           []
           []
           
-        '''
-        if not isinstance(b,QPolynomial) and not hasattr(b,'__iter__'):
+        """
+        if not isinstance(b, QPolynomial) and not hasattr(b, "__iter__"):
             b = QPolynomial(coeff=[b])
-            
+
         na = len(self)
         nb = len(b)
-        
-        n = na+nb
+
+        n = na + nb
         p_res = np.empty(n)
         q_res = np.empty(n)
-        
+
         for i in range(n):
             r = Fraction(0, 1)
-            for k in range(i+1):
-                if k < na and i-k < nb and i-k >= 0:
-                    r += self[k]*b[i-k]
-                
+            for k in range(i + 1):
+                if k < na and i - k < nb and i - k >= 0:
+                    r += self[k] * b[i - k]
+
             p_res[i] = r.numerator
             q_res[i] = r.denominator
-        
-        res = QPolynomial(p_coeff = p_res, q_coeff = q_res)
-        
+
+        res = QPolynomial(p_coeff=p_res, q_coeff=q_res)
+
         return res
-    
+
     def termWiseMul(self, b):
-        '''Hadamard product of the polynomials
+        """Hadamard product of the polynomials
         
-        '''
+        """
         da = self.deg()
         db = b.deg()
-        d = min(da,db)
-        
-        c = [self[i]*b[i] for i in range(d+1)]
-        
-        return QPolynomial(coeff = c)
-    
+        d = min(da, db)
+
+        c = [self[i] * b[i] for i in range(d + 1)]
+
+        return QPolynomial(coeff=c)
+
     def termWiseDiv(self, b):
-        '''Hadamard product of the polynomials
+        """Hadamard product of the polynomials
         
-        '''
+        """
         da = self.deg()
         db = b.deg()
-        d = min(da,db)
-        
-        c = [self[i]/b[i] for i in range(d+1)]
-        
-        return QPolynomial(coeff = c)
-        
+        d = min(da, db)
+
+        c = [self[i] / b[i] for i in range(d + 1)]
+
+        return QPolynomial(coeff=c)
+
     def __call__(self, x):
-        '''
+        """
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
           >>> p(3)
           4.392857142...
           
-        '''
-        a = P.polyval(x, self.__p_coeff/self.__q_coeff)
+        """
+        a = P.polyval(x, self.__p_coeff / self.__q_coeff)
         return a
-        
+
     def isNull(self) -> bool:
-        '''Checks if a polynomial is null
+        """Checks if a polynomial is null
         
-        '''
+        """
         return len(self) == 0
-        
+
     def __eq__(self, b):
         p = self - b
         return p.isNull()
-        
+
     def __neq__(self, b):
         return not self.__eq__(b)
-        
-    def integrate(self) -> 'QPolynomial':
-        '''Computes the integral of the polynomial
+
+    def integrate(self) -> "QPolynomial":
+        """Computes the integral of the polynomial
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
@@ -313,16 +314,16 @@ class QPolynomial (object):
           [0 1]
           [1 1]
           
-        '''
+        """
         p = np.hstack(([0], self.__p_coeff))
-        q = np.hstack(([1], self.__q_coeff*np.arange(1,len(self)+1)))
-        
-        res = QPolynomial(p_coeff = p, q_coeff = q)
-        
+        q = np.hstack(([1], self.__q_coeff * np.arange(1, len(self) + 1)))
+
+        res = QPolynomial(p_coeff=p, q_coeff=q)
+
         return res
-        
-    def derive(self) -> 'QPolynomial':
-        '''Computes the derivative of the polynomial
+
+    def derive(self) -> "QPolynomial":
+        """Computes the derivative of the polynomial
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
@@ -338,16 +339,16 @@ class QPolynomial (object):
           []
           []
           
-        '''
-        p = self.__p_coeff[1:]*np.arange(1,len(self))
+        """
+        p = self.__p_coeff[1:] * np.arange(1, len(self))
         q = self.__q_coeff[1:]
-        
-        res = QPolynomial(p_coeff = p, q_coeff = q)
-        
+
+        res = QPolynomial(p_coeff=p, q_coeff=q)
+
         return res
-        
+
     def companion(self) -> np.array:
-        '''Computes the companion matrix of the polynomial
+        """Computes the companion matrix of the polynomial
         
         Examples:
           >>> p = QPolynomial(p_coeff=[3,-2,1], q_coeff=[4,7,2])
@@ -357,8 +358,9 @@ class QPolynomial (object):
           [[1 4]
            [2 7]]
           
-        '''
+        """
         from AlgebraicNumber.QMatrix import QMatrix
+
         n = len(self) - 1
         res = QMatrix.zeros(n, n)
         for i in range(n):
@@ -367,7 +369,7 @@ class QPolynomial (object):
                 res[i + 1, i] = self[-1]
 
         return res
-        
+
     def discriminant(self) -> Fraction:
         """Computes the discriminant of the polynomial.
         The result is a fraction
@@ -380,7 +382,7 @@ class QPolynomial (object):
           
         """
         n = self.deg()
-        
+
         if ((n * (n - 1)) // 2) % 2 == 0:
             s = 1
         else:
@@ -388,7 +390,7 @@ class QPolynomial (object):
 
         dp = self.derive()
         res = Qresultant(self, dp)
-        
+
         dis = s * res / self[-1]
 
         return dis
@@ -415,18 +417,20 @@ class QPolynomial (object):
           
         """
         n = self.deg()
-        
+
         d = float(self.discriminant())
-        sep = np.sqrt(3 * np.abs(d) / n ** (n + 2)) / lin.norm(self.__p_coeff/self.__q_coeff, ord=2) ** (n - 1)
-        
+        sep = np.sqrt(3 * np.abs(d) / n ** (n + 2)) / lin.norm(
+            self.__p_coeff / self.__q_coeff, ord=2
+        ) ** (n - 1)
+
         return sep
-        
+
     def copy(self):
         p = self.__p_coeff.copy()
         q = self.__q_coeff.copy()
         res = QPolynomial(p_coeff=p, q_coeff=q, check=False)
         return res
-        
+
     def squareFreeFact(self):
         r"""
         
@@ -439,18 +443,18 @@ class QPolynomial (object):
         """
         n = self.deg()
         p = self.copy()
-        
+
         while True:
             dp = p.derive()
             g = Qpolygcd(p, dp)
             if g == QPolynomial(p_coeff=[1]):
                 return p
-                
+
             p, r = Qpolydiv(p, g)
             if not r.isNull():
                 raise AssertionError(r)
-                
-    def compose(self, S:'QPolynomial') -> 'QPolynomial':
+
+    def compose(self, S: "QPolynomial") -> "QPolynomial":
         r"""Computes self(S(X))
         
         Examples:
@@ -462,15 +466,15 @@ class QPolynomial (object):
           
         """
         res = QPolynomial()
-        sp = QPolynomial(coeff=[Fraction(1,1)])
+        sp = QPolynomial(coeff=[Fraction(1, 1)])
         for rk in self:
             if rk != 0:
-                res = res + sp*rk
+                res = res + sp * rk
             sp = sp * S
 
         return res
-        
-    def translate(self, a:'QPolynomial') -> 'QPolynomial':
+
+    def translate(self, a: "QPolynomial") -> "QPolynomial":
         r"""
         
         Examples:
@@ -482,14 +486,14 @@ class QPolynomial (object):
         """
         n = self.deg()
 
-        q = (n + 1)*[None]
+        q = (n + 1) * [None]
         for k in range(n + 1):
-            q[k] = Fraction(0,1)
+            q[k] = Fraction(0, 1)
             for p in range(k, n + 1):
                 q[k] += nCr(p, k) * self[p] * a ** (p - k)
 
         return QPolynomial(coeff=q)
-        
+
     def roots(self) -> np.array:
         r"""
         
@@ -499,8 +503,8 @@ class QPolynomial (object):
           array([-2.,  2.]...
           
         """
-        return P.polyroots(self.__p_coeff/self.__q_coeff)
-        
+        return P.polyroots(self.__p_coeff / self.__q_coeff)
+
     def newton_sum(self, d: int) -> Fraction:
         """Computes the d-th Newton's sum :math:`s_d` of the polynomial h
         
@@ -529,7 +533,7 @@ class QPolynomial (object):
           
         """
         from AlgebraicNumber.QMatrix import QMatrix
-        
+
         Dh = self.deg()
 
         if d == 0:
@@ -540,37 +544,37 @@ class QPolynomial (object):
         # s_d = x_1^d + x_2^d + ... + x_n^d
         # X = [s_1, s_2, ..., s_D]
         A = QMatrix.zeros(Dh, Dh)
-        B = QMatrix.zeros(Dh,1)
-        
-        tp,tq = self.getCoefficientsAsNumDen()
-        tmp = tp/tq
-        
+        B = QMatrix.zeros(Dh, 1)
+
+        tp, tq = self.getCoefficientsAsNumDen()
+        tmp = tp / tq
+
         for r in range(Dh):
-            for u in range(r+1):
-                A[r, u] = self[Dh-r+u]
-            
+            for u in range(r + 1):
+                A[r, u] = self[Dh - r + u]
+
             B[r, 0] = -(r + 1) * self[-r - 2]
-            
+
         X = A.inv() @ B
-        
+
         if d <= Dh:
-            return X[d - 1,0]
-        
+            return X[d - 1, 0]
+
         a_lrs = QMatrix.zeros(1, Dh)
         for u in range(Dh):
-            a_lrs[0,u] = -self[u]/self[-1]
-            
+            a_lrs[0, u] = -self[u] / self[-1]
+
         for d in range(Dh + 1, d + 1):
             sd = a_lrs @ X
-            
+
             pX, qX = X.getCoefficientsAsNumDen()
-            pX = np.hstack((pX[1:,0], [sd[0,0].numerator])).reshape((Dh,1))
-            qX = np.hstack((qX[1:,0], [sd[0,0].denominator])).reshape((Dh,1))
-            X = QMatrix(pX,qX)
-            
-        return sd[0,0]
-        
-    def reverse(self, D: int = None) -> 'QPolynomial':
+            pX = np.hstack((pX[1:, 0], [sd[0, 0].numerator])).reshape((Dh, 1))
+            qX = np.hstack((qX[1:, 0], [sd[0, 0].denominator])).reshape((Dh, 1))
+            X = QMatrix(pX, qX)
+
+        return sd[0, 0]
+
+    def reverse(self, D: int = None) -> "QPolynomial":
         """This function returns the reverse polynomial associated with h, denoted rev(h)
         
         :math:`a_0 + a_1.X + a_2.X^2 + ...`
@@ -599,13 +603,23 @@ class QPolynomial (object):
         """
         if D is None:
             D = self.deg()
-        
-        p_rev = np.pad(self.__p_coeff[-1::-1], (D + 1 - len(self.__p_coeff), 0), "constant", constant_values=(0, 0))
-        q_rev = np.pad(self.__q_coeff[-1::-1], (D + 1 - len(self.__q_coeff), 0), "constant", constant_values=(0, 0))
-        
+
+        p_rev = np.pad(
+            self.__p_coeff[-1::-1],
+            (D + 1 - len(self.__p_coeff), 0),
+            "constant",
+            constant_values=(0, 0),
+        )
+        q_rev = np.pad(
+            self.__q_coeff[-1::-1],
+            (D + 1 - len(self.__q_coeff), 0),
+            "constant",
+            constant_values=(0, 0),
+        )
+
         return QPolynomial(p_coeff=p_rev, q_coeff=q_rev)
 
-    def LogRev(self, D:int=None) -> 'QPolynomial':
+    def LogRev(self, D: int = None) -> "QPolynomial":
         """This function returns the logarithmic reverse rational power series associated with h, denoted LogRev(h)
         The result of this function is a truncature of degree D
 
@@ -642,17 +656,17 @@ class QPolynomial (object):
         """
         if D is None:
             D = self.deg()
-        
+
         p = np.empty(D + 1, dtype=np.int64)
         q = np.empty(D + 1, dtype=np.int64)
         for d in range(D + 1):
             s = self.newton_sum(d)
             p[d] = s.numerator
             q[d] = s.denominator
-            
+
         return QPolynomial(p_coeff=p, q_coeff=q)
 
-    def InvertLogRev(self) -> 'QPolynomial':
+    def InvertLogRev(self) -> "QPolynomial":
         """Given a polynomial lr which is LogRev of h, finds back h
         
         Returns:
@@ -683,16 +697,16 @@ class QPolynomial (object):
         D = self[0].numerator
         if self[0].denominator != 1:
             raise AssertionError(self[0])
-            
+
         # Computation of (D - LogRev(h))/X as the fraction n1, d1
         p, q = self.getCoefficientsAsNumDen()
         n2 = -p[1:]
-        d2 =  q[1:]
+        d2 = q[1:]
         p2 = QPolynomial(p_coeff=n2, q_coeff=d2)
-        
+
         # Integrate p2
         p3 = p2.integrate()
-        
+
         # Exponentiate p3
         p4 = QPolynomial(p_coeff=[1])
         pdl = np.empty(D + 1, dtype=np.int64)
@@ -703,32 +717,32 @@ class QPolynomial (object):
             # dl : DL de exp(p3[i].x^i) a l'ordre D
             s = slice(0, D + 1, i)
             nc = 1 + D // i
-            
+
             pdl[:] = 0
             qdl[:] = 1
-            
+
             if i <= p3.deg():
                 p_p3 = p3[i].numerator
                 pdl[s] = p_p3 ** k[:nc]
-                
+
                 q_p3 = p3[i].denominator
-                qdl[s] = q_p3 ** k[:nc]*coeff[:nc]
+                qdl[s] = q_p3 ** k[:nc] * coeff[:nc]
             else:
                 pdl[0] = 1
-                
+
             dl = QPolynomial(p_coeff=pdl, q_coeff=qdl)
             p4 = p4 * dl
 
         return p4.truncate(deg=D).reverse(D=D)
-        
-    def truncate(self, deg:int) -> 'QPolynomial':
+
+    def truncate(self, deg: int) -> "QPolynomial":
         p, q = self.getCoefficientsAsNumDen()
-        p = p[:deg+1]
-        q = q[:deg+1]
-        
+        p = p[: deg + 1]
+        q = q[: deg + 1]
+
         return QPolynomial(p_coeff=p, q_coeff=q)
-        
-        
+
+
 def Qsylvester(R, S):
     """
     
@@ -739,24 +753,25 @@ def Qsylvester(R, S):
       
     """
     from AlgebraicNumber.QMatrix import QMatrix
+
     m = R.deg()
     n = S.deg()
-    
+
     p_res = np.zeros((n + m, n + m), dtype=np.int64)
     q_res = np.ones((n + m, n + m), dtype=np.int64)
     for k in range(n):
-        for p in range(1+m):
-            r = R[m-p]
+        for p in range(1 + m):
+            r = R[m - p]
             p_res[k, k + p] = r.numerator
             q_res[k, k + p] = r.denominator
     for k in range(m):
-        for p in range(1+n):
-            s = S[n-p]
+        for p in range(1 + n):
+            s = S[n - p]
             p_res[k + n, k + p] = s.numerator
             q_res[k + n, k + p] = s.denominator
 
     return QMatrix(p_res, q_res)
-    
+
 
 def Qresultant(R, S):
     """
@@ -773,7 +788,7 @@ def Qresultant(R, S):
 
 
 def Qpolydiv(n, d):
-    '''
+    """
     
     Examples:
       >>> n = QPolynomial(p_coeff=[-4, 0, -2, 1])
@@ -786,22 +801,22 @@ def Qpolydiv(n, d):
       [5]
       [1]
   
-    '''
+    """
     if d.isNull():
         raise ZeroDivisionError
-    
+
     q = QPolynomial()
-    r = n.copy() # At each step n = d × q + r
-    
+    r = n.copy()  # At each step n = d × q + r
+
     while not r.isNull() and r.deg() >= d.deg():
-        c = r[-1] / d[-1] # Divide the leading terms
-        t = QPolynomial(coeff=(r.deg()-d.deg())*[Fraction(0,1)] + [c])
+        c = r[-1] / d[-1]  # Divide the leading terms
+        t = QPolynomial(coeff=(r.deg() - d.deg()) * [Fraction(0, 1)] + [c])
         q = q + t
-        r = r - t*d
-        
+        r = r - t * d
+
     return (q, r)
-    
-    
+
+
 def Qpolygcd(a, b):
     r"""
     
@@ -816,29 +831,29 @@ def Qpolygcd(a, b):
     """
     m = a.deg()
     n = b.deg()
-    
+
     if n > m:
         a, b = b, a
         n, m = m, n
 
     # Here, deg(a) >= deb(b)
-    
+
     while True:
         q, r = Qpolydiv(a, b)
-        
+
         a, b = b, r
-        
+
         if b.isNull():
             return a / a[-1]
-    
-    
+
+
 def Qnpolymul(*polynomials):
-    res = QPolynomial(coeff=[Fraction(1,1)])
+    res = QPolynomial(coeff=[Fraction(1, 1)])
     for q in polynomials:
         res = res * q
     return res
-    
-    
+
+
 if __name__ == "__main__":
     import doctest
 
