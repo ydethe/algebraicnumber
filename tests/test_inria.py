@@ -16,42 +16,42 @@ except Exception as e:
 
 class TestINRIA(TestBase):
     def test_mul(self):
-        a = QPolynomial(p_coeff=[-2, 0, 1])
-        b = QPolynomial(p_coeff=[-3, 0, 1])
+        a = QPolynomial(coeff=[-2, 0, 1])
+        b = QPolynomial(coeff=[-3, 0, 1])
 
         coeff = inria_mul(a, b)
 
-        ref = QPolynomial(p_coeff=[36, 0, -12, 0, 1])
+        ref = QPolynomial(coeff=[36, 0, -12, 0, 1])
 
         self.assertQPolynomialEqual(coeff, ref)
 
     def test_mul2(self):
-        a = QPolynomial(p_coeff=[-2, 0, 1])
-        b = QPolynomial(p_coeff=[-2, 0, 1])
+        a = QPolynomial(coeff=[-2, 0, 1])
+        b = QPolynomial(coeff=[-2, 0, 1])
 
         coeff = inria_mul(a, b)
 
-        ref = QPolynomial(p_coeff=[16, 0, -8, 0, 1])
+        ref = QPolynomial(coeff=[16, 0, -8, 0, 1])
 
         self.assertQPolynomialEqual(coeff, ref)
 
     def test_add(self):
-        a = QPolynomial(p_coeff=[2, 1])
-        b = QPolynomial(p_coeff=[-3, 1])
+        a = QPolynomial(coeff=[2, 1])
+        b = QPolynomial(coeff=[-3, 1])
 
         coeff = inria_add(a, b)
 
-        ref = QPolynomial(p_coeff=[-1, 1])
+        ref = QPolynomial(coeff=[-1, 1])
 
         self.assertQPolynomialEqual(coeff, ref)
 
     def test_add2(self):
-        a = QPolynomial(p_coeff=[2, 1])
-        b = QPolynomial(p_coeff=[-2, 1])
+        a = QPolynomial(coeff=[2, 1])
+        b = QPolynomial(coeff=[-2, 1])
 
         coeff = inria_add(a, b)
 
-        ref = QPolynomial(p_coeff=[0, 1])
+        ref = QPolynomial(coeff=[0, 1])
 
         self.assertQPolynomialEqual(coeff, ref)
 
@@ -63,7 +63,7 @@ class TestINRIA(TestBase):
                 p = np.random.randint(low=-5, high=5, size=n)
             q = np.random.randint(low=1, high=5, size=n)
 
-            h = QPolynomial(p_coeff=p, q_coeff=q)
+            h = QPolynomial(coeff=[Fraction(int(x),int(y)) for (x,y) in zip(p,q)])
             lr = h.LogRev()
             h2 = lr.InvertLogRev()
 

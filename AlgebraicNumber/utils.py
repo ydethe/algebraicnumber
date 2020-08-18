@@ -14,12 +14,6 @@ def nCr(n, r):
     return factorial(n) // factorial(r) // factorial(n - r)
 
 
-def prod(*iterable, start=1):
-    for i in iterable:
-        start = start * i
-    return start
-
-
 def is_poly_valid(h, tol):
     """The coeficients of the polynomial h must:
     * have no imaginary part
@@ -50,22 +44,20 @@ def npolymul(*polynomials):
 
 def simplify(h: "QPolynomial", root: np.complex64, tol: float = 1e-7) -> "QPolynomial":
     r"""
-    
+
     Examples:
       >>> from AlgebraicNumber.QPolynomial import QPolynomial
-      >>> R = QPolynomial(p_coeff=[4, -2, 0, -2, 1])
-      >>> simplify(R, 2)
-      [-2  1]
-      [1 1]
-      >>> simplify(R, 2**(1/3))
-      [-2  0  0  1]
-      [1 1 1 1]
-      
+      >>> R = QPolynomial(coeff=[4, -2, 0, -2, 1])
+      >>> simplify(R, 2).printCoeff()
+      '[-2,1]'
+      >>> simplify(R, 2**(1/3)).printCoeff()
+      '[-2,0,0,1]'
+
     """
     from AlgebraicNumber.QPolynomial import QPolynomial
 
     # 1. square free
-    h1 = h.squareFreeFact().getCoefficientsAsFraction()
+    h1 = h.squareFreeFact().getCoefficients()
     lq = np.array([x.denominator for x in h1], dtype=np.int64)
     ppcm = reduce(lambda x, y: (x * y) // gcd(x, y), lq)
 
@@ -84,7 +76,7 @@ def simplify(h: "QPolynomial", root: np.complex64, tol: float = 1e-7) -> "QPolyn
     roots = np.delete(roots, i0)
 
     if n <= 1:
-        return QPolynomial(p_coeff=h3)
+        return QPolynomial(coeff=h3)
 
     for nr in range(n):
         for c in combinations(roots, nr):
@@ -115,7 +107,7 @@ def simplify(h: "QPolynomial", root: np.complex64, tol: float = 1e-7) -> "QPolyn
     if len(h6) == 1:
         h6 = np.hstack(([0], h6))
 
-    return QPolynomial(p_coeff=h6)
+    return QPolynomial(coeff=h6)
 
 
 if __name__ == "__main__":

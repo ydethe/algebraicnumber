@@ -15,9 +15,9 @@ def inria_add(a: QPolynomial, b: QPolynomial) -> QPolynomial:
     Db = b.deg()
     D = Da * Db
 
-    Ea = QPolynomial(q_coeff=[factorial(n) for n in range(Da + 1)])
-    Eb = QPolynomial(q_coeff=[factorial(n) for n in range(Db + 1)])
-    E2 = QPolynomial(q_coeff=[factorial(n) for n in range(2 * D + 1)])
+    Ea = QPolynomial(coeff=[factorial(n) for n in range(Da + 1)])
+    Eb = QPolynomial(coeff=[factorial(n) for n in range(Db + 1)])
+    E2 = QPolynomial(coeff=[factorial(n) for n in range(2 * D + 1)])
 
     la = a.LogRev(D=D)
     lb = b.LogRev(D=D)

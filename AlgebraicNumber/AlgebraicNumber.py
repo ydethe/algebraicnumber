@@ -12,13 +12,13 @@ from AlgebraicNumber.inria_utils import inria_add as an_add
 
 class AlgebraicNumber(object):
     """
-    
+
     Examples:
       >>> a = AlgebraicNumber.imaginary()
       >>> print(a)
-                              2
-      AlgebraicNumber(1j), 1 X + 1
-      
+                                2
+      AlgebraicNumber(1j), 1 + X
+
     """
 
     @classmethod
@@ -41,7 +41,7 @@ class AlgebraicNumber(object):
         if isinstance(coeff, QPolynomial):
             self.poly = coeff
         else:
-            self.poly = QPolynomial(p_coeff=coeff)
+            self.poly = QPolynomial(coeff=coeff)
 
         self.approx = self.eval(approx)
         if not _nosimp:
@@ -52,9 +52,7 @@ class AlgebraicNumber(object):
 
     @property
     def coeff(self):
-        p, q = self.poly.getCoefficientsAsNumDen()
-        if np.any(q != 1):
-            raise AssertionError(q)
+        p = self.poly.getCoefficients()
         return p
 
     def eval(self, approx=None):
@@ -78,13 +76,13 @@ class AlgebraicNumber(object):
 
     def plotRoots(self, axe=None, **kwargs):
         """Plots the roots of the minimal polynomial of the number
-        
+
         Args:
           axe
             If given, a matplotlib axe to draw on. By default, plotRoots creates it
           kwargs
             List of arguments to format the plot. Must not specify linestyle.
-            
+
         """
         if axe is None:
             import matplotlib.pyplot as plt
@@ -109,11 +107,11 @@ class AlgebraicNumber(object):
             plt.show()
 
     def pow(self, p: int, q: int = 1) -> "AlgebraicNumber":
-        r"""If :math:`\alpha` is an alebraic number, computes 
-        
+        r"""If :math:`\alpha` is an alebraic number, computes
+
         .. math::
             \alpha^{p/q}
-        
+
         Examples:
           >>> a = AlgebraicNumber([-2, 0, 1], 1.414)
           >>> a.pow(2)
@@ -122,7 +120,7 @@ class AlgebraicNumber(object):
           >>> a.pow(1,2)
                                                       4
           AlgebraicNumber((1.189207115002721+0j)), 1 X - 2
-          
+
         """
         if q == 0:
             raise ZeroDivisionError
@@ -132,7 +130,7 @@ class AlgebraicNumber(object):
             res = res * self
 
         h = res.poly
-        Xq = QPolynomial(p_coeff=[0] * q + [1])
+        Xq = QPolynomial(coeff=[0] * q + [1])
 
         res = h.compose(Xq)
 
@@ -145,9 +143,7 @@ class AlgebraicNumber(object):
         if self == ZERO:
             raise ZeroDivisionError
 
-        p, q = self.poly.getCoefficientsAsNumDen()
-        if np.any(q != 1):
-            raise AssertionError(q)
+        p = self.poly.getCoefficients()
 
         res = AlgebraicNumber(p[-1::-1], 1 / self.approx)
 
@@ -165,11 +161,7 @@ class AlgebraicNumber(object):
         return not self.__eq__(b)
 
     def __repr__(self):
-        h1 = self.poly.getCoefficientsAsFraction()
-        lq = np.array([x.numerator for x in h1], dtype=np.int64)
-
-        p = np.poly1d(lq[-1::-1], variable="X")
-        s = str(p)
+        s = str(self.poly)
         elem = s.split("\n")
         info = "%s(%s), " % (self.__class__.__name__, self.approx)
         n = len(info)
@@ -182,14 +174,13 @@ class AlgebraicNumber(object):
 
     def __mul__(self, b):
         """
-        
+
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2*sqrt_3
-        >>> p.poly
-        [-6  0  1]
-        [1 1 1]
-        
+        >>> p.poly.printCoeff()
+        '[-6,0,1]'
+
         """
         Q = an_mul(self.poly, b.poly)
 
@@ -199,29 +190,27 @@ class AlgebraicNumber(object):
 
     def __truediv__(self, b):
         """
-        
+
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2/sqrt_3
-        >>> p.poly
-        [-2  0  3]
-        [1 1 1]
-        
+        '>>> p.poly.printCoeff()
+        '[-2,0,3]'
+
         """
         ib = b.inverse()
         return self * ib
 
     def __neg__(self):
         """
-        
+
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> p = -sqrt_2
-        >>> p.poly
-        [-2  0  1]
-        [1 1 1]
-        
+        >>> p.poly.printCoeff()
+        '[-2,0,1]'
+
         """
-        mx = QPolynomial(p_coeff=[0, -1])
+        mx = QPolynomial(coeff=[0, -1])
         p2 = self.poly.compose(mx)
 
         res = AlgebraicNumber(p2, -self.approx)
@@ -234,16 +223,16 @@ class AlgebraicNumber(object):
 
     def __add__(self, b):
         """
-        
+
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2+sqrt_3
-        >>> p.poly
-        array([  1,   0, -10,   0,   1]...
+        >>> p.poly.printCoeff()
+        '[1,0,-10,0,1]'
         >>> ref = np.sqrt(2) + np.sqrt(3)
         >>> np.abs(p.approx - ref) < 1e-10
         True
-        
+
         """
         Q = an_add(self.poly, b.poly)
 
@@ -253,14 +242,14 @@ class AlgebraicNumber(object):
 
     def conj(self):
         """
-        
+
         >>> z = AlgebraicNumber.unity() + AlgebraicNumber.imaginary()
-        >>> z.poly
-        array([ 2, -2,  1]...
+        >>> z.poly.printCoeff()
+        '[2,-2,1]'
         >>> p = z*z.conj()
-        >>> p.poly
-        array([-2,  1]...
-        
+        >>> p.poly.printCoeff()
+        '[-2,1]'
+
         """
         res = AlgebraicNumber(self.poly, np.conj(self.approx))
 

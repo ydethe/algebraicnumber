@@ -47,8 +47,7 @@ class TestBase(unittest.TestCase):
         )
 
     def assertQPolynomialEqual(self, actual, desired):
-        pa, qa = actual.getCoefficientsAsNumDen()
-        pd, qd = desired.getCoefficientsAsNumDen()
+        pa = np.array(actual.getCoefficients(conv=float))
+        pd = np.array(desired.getCoefficients(conv=float))
 
         self.assertNpArrayAlmostEqual(pa, pd, delta=0)
-        self.assertNpArrayAlmostEqual(qa, qd, delta=0)
