@@ -63,7 +63,7 @@ class TestINRIA(TestBase):
                 p = np.random.randint(low=-5, high=5, size=n)
             q = np.random.randint(low=1, high=5, size=n)
 
-            h = QPolynomial(coeff=[Fraction(int(x),int(y)) for (x,y) in zip(p,q)])
+            h = QPolynomial(coeff=[Fraction(int(x), int(y)) for (x, y) in zip(p, q)])
             lr = h.LogRev()
             h2 = lr.InvertLogRev()
 

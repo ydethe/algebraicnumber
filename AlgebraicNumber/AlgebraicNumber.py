@@ -59,20 +59,10 @@ class AlgebraicNumber(object):
         if approx is None:
             approx = self.approx
 
-        def fun(X):
-            x, y = X
-            z = x + 1j * y
-            P = self.poly(z)
-            return [np.real(P), np.imag(P)]
+        r = self.poly.roots()
+        k = np.argmin(np.abs(r - approx))
 
-        sol = root(fun, x0=[np.real(approx), np.imag(approx)])
-        if sol.success:
-            x, y = sol.x
-            z = x + 1j * y
-            return z
-        else:
-            print(sol)
-            raise ValueError
+        return r[k]
 
     def plotRoots(self, axe=None, **kwargs):
         """Plots the roots of the minimal polynomial of the number

@@ -703,7 +703,9 @@ class QPolynomial(object):
         n = self.deg()
 
         d = float(self.discriminant())
-        sep = np.sqrt(3 * np.abs(d) / n ** (n + 2)) / lin.norm(self.getCoefficients(conv=float), ord=2) ** (n - 1)
+        sep = np.sqrt(3 * np.abs(d) / n ** (n + 2)) / lin.norm(
+            self.getCoefficients(conv=float), ord=2
+        ) ** (n - 1)
 
         return sep
 
