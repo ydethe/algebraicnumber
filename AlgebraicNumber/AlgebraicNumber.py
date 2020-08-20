@@ -15,9 +15,6 @@ class AlgebraicNumber(object):
 
     Examples:
       >>> a = AlgebraicNumber.imaginary()
-      >>> print(a)
-                                2
-      AlgebraicNumber(1j), 1 + X
 
     """
 
@@ -104,12 +101,10 @@ class AlgebraicNumber(object):
 
         Examples:
           >>> a = AlgebraicNumber([-2, 0, 1], 1.414)
-          >>> a.pow(2)
-          <BLANKLINE>
-          AlgebraicNumber((2+0j)), 1 X - 2
-          >>> a.pow(1,2)
-                                                      4
-          AlgebraicNumber((1.189207115002721+0j)), 1 X - 2
+          >>> a.pow(2).poly.printCoeff()
+          '[-2,1]'
+          >>> a.pow(1,2).poly.printCoeff()
+          '[-2,0,0,0,1]'
 
         """
         if q == 0:
@@ -184,7 +179,7 @@ class AlgebraicNumber(object):
         >>> sqrt_2 = AlgebraicNumber([-4,0,2], 1.4)
         >>> sqrt_3 = AlgebraicNumber([-9,0,3], 1.7)
         >>> p = sqrt_2/sqrt_3
-        '>>> p.poly.printCoeff()
+        >>> p.poly.printCoeff()
         '[-2,0,3]'
 
         """

@@ -512,6 +512,12 @@ def colConcat(A: QMatrix, B: QMatrix) -> QMatrix:
     n, m = A.shape
     nb, p = B.shape
 
+    if n == 0 and m == 0:
+        return B.copy()
+
+    if nb == 0 and p == 0:
+        return A.copy()
+
     if n != nb:
         raise AssertionError(n, m, nb, p)
 
@@ -531,6 +537,12 @@ def colConcat(A: QMatrix, B: QMatrix) -> QMatrix:
 def rowConcat(A: QMatrix, B: QMatrix) -> QMatrix:
     n, m = A.shape
     nb, p = B.shape
+
+    if n == 0 and m == 0:
+        return B.copy()
+
+    if nb == 0 and p == 0:
+        return A.copy()
 
     if m != p:
         raise AssertionError(n, m, nb, p)

@@ -92,7 +92,7 @@ class QPolynomial(object):
 
         return QPolynomial(coeff=res, field=self.F)
 
-    def getCoefficients(self, conv=None) -> "F":
+    def getCoefficients(self, conv=None) -> "conv":
         """
 
         Examples:

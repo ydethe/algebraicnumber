@@ -42,7 +42,7 @@ def npolymul(*polynomials):
     return res
 
 
-def simplify(h: "QPolynomial", root: np.complex64, tol: float = 1e-7) -> "QPolynomial":
+def simplify(h: "QPolynomial", root: np.complex128, tol: float = 1e-1) -> "QPolynomial":
     r"""
 
     Examples:
@@ -58,14 +58,13 @@ def simplify(h: "QPolynomial", root: np.complex64, tol: float = 1e-7) -> "QPolyn
 
     # 1. square free
     h1 = h.squareFreeFact().getCoefficients()
-    lq = np.array([x.denominator for x in h1], dtype=np.int64)
+    lq = [x.denominator for x in h1]
     ppcm = reduce(lambda x, y: (x * y) // gcd(x, y), lq)
 
-    h2 = np.array([x.numerator for x in h1], dtype=np.int64)
-    h2 *= ppcm // lq
+    h2 = [x.numerator*ppcm // q for x,q in zip(h1,lq)]
 
     g = reduce(gcd, h2)
-    h3 = h2 // g
+    h3 = [x//g for x in h2]
 
     n = len(h3) - 1
     roots = P.polyroots(h3)
@@ -73,6 +72,7 @@ def simplify(h: "QPolynomial", root: np.complex64, tol: float = 1e-7) -> "QPolyn
     # We remove the given root
     yy = np.abs(roots - root)
     i0 = np.argmin(yy)
+    root = roots[i0]
     roots = np.delete(roots, i0)
 
     if n <= 1:
@@ -94,20 +94,9 @@ def simplify(h: "QPolynomial", root: np.complex64, tol: float = 1e-7) -> "QPolyn
     if ok != 0:
         raise AssertionError(ok, h3, h4)
 
-    h5 = np.int32(np.round(np.real(h4), 0))
+    h5 = [int(x) for x in np.round(np.real(h4), 0)]
 
-    # Suppressing the first null coefficients
-    n = len(h5) - 1
-
-    for i in range(n + 1):
-        if h5[i] != 0:
-            break
-
-    h6 = h5[i:]
-    if len(h6) == 1:
-        h6 = np.hstack(([0], h6))
-
-    return QPolynomial(coeff=h6)
+    return QPolynomial(coeff=h5)
 
 
 if __name__ == "__main__":

@@ -20,9 +20,7 @@ class TestOperations(TestBase):
 
         z = a + b
 
-        ref = np.array([0, 1])
-
-        self.assertNpArrayAlmostEqual(z.coeff, ref, delta=1e-9)
+        self.assertQPolynomialEqual(z, AlgebraicNumber.zero())
 
     def test_sub(self):
         a = AlgebraicNumber([-2, 0, 1], np.sqrt(2))
@@ -30,8 +28,8 @@ class TestOperations(TestBase):
 
         z = a - b
 
-        ref = np.array([-8, 0, 1])
-        self.assertNpArrayAlmostEqual(z.coeff, ref, delta=1e-9)
+        ref = AlgebraicNumber([-8, 0, 1], np.sqrt(8))
+        self.assertQPolynomialEqual(z, ref)
 
     def test_div(self):
         a = AlgebraicNumber([-2, 0, 1], np.sqrt(2))
@@ -39,9 +37,9 @@ class TestOperations(TestBase):
 
         z = a / b
 
-        ref = np.array([1, 1])
+        ref = AlgebraicNumber([1, 1], -1)
 
-        self.assertNpArrayAlmostEqual(z.coeff, ref, delta=1e-9)
+        self.assertQPolynomialEqual(z, ref)
 
     def test_div2(self):
         a = AlgebraicNumber([-2, 0, 1], np.sqrt(2))
@@ -53,23 +51,24 @@ class TestOperations(TestBase):
         self.assertRaises(ZeroDivisionError, test_div, a, b)
 
     def test_cycle(self):
-        n = 5
+        n = 3
         a = AlgebraicNumber([-1] + [0] * (n - 1) + [1], np.exp(1j * 2 * np.pi / n))
 
-        ref = np.array([1, 1, 1, 1, 1])
-        self.assertNpArrayAlmostEqual(a.coeff, ref, delta=1e-9)
+        ref = AlgebraicNumber(n*[1], np.exp(1j * 2 * np.pi / n))
+        self.assertQPolynomialEqual(a, ref)
 
         z = AlgebraicNumber.unity()
 
         z2 = AlgebraicNumber.integer(2)
-        ref = np.array([-2, 1])
-        self.assertNpArrayAlmostEqual(z2.coeff, ref, delta=1e-9)
+        ref = AlgebraicNumber([-2, 1], 2)
+        self.assertQPolynomialEqual(z2, ref)
 
         for i in range(n):
+            print('Cycle %i/%i' % (i,n))
             z = z * a
 
-        ref = np.array([-1, 1])
-        self.assertNpArrayAlmostEqual(z.coeff, ref, delta=1e-9)
+        ref = AlgebraicNumber([-1, 1], 1)
+        self.assertQPolynomialEqual(z, ref)
 
     def test_plot_roots(self):
         n = 5
