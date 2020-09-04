@@ -36,7 +36,7 @@ test:
   script:
     - python3 -m pip install tox setuptools docutils codecov
     - tox --version
-    - tox -e py35
+    - tox -e py
     - codecov
   artifacts:
     paths:

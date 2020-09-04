@@ -61,10 +61,10 @@ def simplify(h: "QPolynomial", root: np.complex128, tol: float = 1e-1) -> "QPoly
     lq = [x.denominator for x in h1]
     ppcm = reduce(lambda x, y: (x * y) // gcd(x, y), lq)
 
-    h2 = [x.numerator*ppcm // q for x,q in zip(h1,lq)]
+    h2 = [x.numerator * ppcm // q for x, q in zip(h1, lq)]
 
     g = reduce(gcd, h2)
-    h3 = [x//g for x in h2]
+    h3 = [x // g for x in h2]
 
     n = len(h3) - 1
     roots = P.polyroots(h3)

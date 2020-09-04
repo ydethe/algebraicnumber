@@ -54,7 +54,7 @@ class TestOperations(TestBase):
         n = 3
         a = AlgebraicNumber([-1] + [0] * (n - 1) + [1], np.exp(1j * 2 * np.pi / n))
 
-        ref = AlgebraicNumber(n*[1], np.exp(1j * 2 * np.pi / n))
+        ref = AlgebraicNumber(n * [1], np.exp(1j * 2 * np.pi / n))
         self.assertQPolynomialEqual(a, ref)
 
         z = AlgebraicNumber.unity()
@@ -64,7 +64,7 @@ class TestOperations(TestBase):
         self.assertQPolynomialEqual(z2, ref)
 
         for i in range(n):
-            print('Cycle %i/%i' % (i,n))
+            print("Cycle %i/%i" % (i, n))
             z = z * a
 
         ref = AlgebraicNumber([-1, 1], 1)

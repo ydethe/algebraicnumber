@@ -64,5 +64,7 @@ class BuildSphinxCommand(distutils.cmd.Command):
 setup(
     **conf_dict["option"],
     **conf_dict["metadata"],
-    cmdclass={"doc": BuildSphinxCommand,},
+    cmdclass={
+        "doc": BuildSphinxCommand,
+    },
 )
