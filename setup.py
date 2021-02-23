@@ -22,8 +22,8 @@ with codecs.open(
     encoding="utf-8",
 ) as f:
     req = f.read().strip().split("\n")
-    conf_dict["options"]["install_requires"].extend(req)
 
+print(conf_dict["options"])
 
 class BuildSphinxCommand(distutils.cmd.Command):
     description = "build sphinx documentation"
@@ -64,6 +64,7 @@ class BuildSphinxCommand(distutils.cmd.Command):
 setup(
     **conf_dict["option"],
     **conf_dict["metadata"],
+    install_requires=req,
     cmdclass={
         "doc": BuildSphinxCommand,
     },
