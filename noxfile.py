@@ -21,6 +21,6 @@ def docs(session):
 
 @nox.session
 def build(session):
-    session.install('wheel','twine','docutils')
+    session.install('wheel','docutils')
     session.run('python','setup.py','sdist','bdist_wheel')
     
