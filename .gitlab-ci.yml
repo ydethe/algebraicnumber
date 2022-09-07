@@ -37,7 +37,7 @@ test:
     - nox -s tests coverage
     - mv build/htmldoc/tests pub_tests
     - mv build/htmldoc/coverage pub_coverage
-    # - codecov
+    - codecov
   artifacts:
     paths:
       - pub_tests
