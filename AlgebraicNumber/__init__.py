@@ -1,6 +1,31 @@
 """
-   Manipulation of algebraic numbers
-   Y. de The
+
+.. include:: ../README.md
+
+# Testing AlgebraicNumber
+
+## Run the tests
+
+To run tests, just run:
+
+    nox -s tests
+ 
+## Code coverage
+
+Once the tests are run, the code coverage is available. To have a html version in the htmlcov folder, run:
+
+    nox -s coverage
+
+[See coverage](../coverage/index.html)
+
+## Test reports
+
+[See test report](../tests/report.html)
+
+# Class diagram
+
+![classes](./classes.png "Class diagram")
+
 """
 from pkg_resources import get_distribution
 import logging

@@ -119,6 +119,14 @@ class QPolynomial(object):
         return len(self.__coeff) - 1
 
     def __repr__(self):
+        """
+        Examples:
+        >>> p = QPolynomial([-2,0,Fraction(2,3),0,1,0])
+        >>> print(p)
+                  2    4 
+        -2 + 2/3.X  + X 
+        
+        """
         sp = ""
         sc = ""
 
@@ -509,13 +517,13 @@ class QPolynomial(object):
         return QPolynomial(coeff=p, field=self.F)
 
     def reverse(self, deg: int = None) -> "QPolynomial":
-        """This function returns the reverse polynomial associated with h, denoted rev(h)
+        r"""This function returns the reverse polynomial associated with h, denoted rev(h)
 
         rev(h) is defined as follows:
 
-        :math:`rev(h) = X^{deg(h)}.h(1/X)`
+        $ rev(h) = X^{deg(h)}.h(1/X) $$
 
-        If D is > deg(h), the reversed h will be multiplied by :math:`X^k` so that the final degree is D
+        If D is > deg(h), the reversed h will be multiplied by \( X^k \) so that the final degree is D
 
         Returns:
           The reverse
@@ -545,7 +553,7 @@ class QPolynomial(object):
 
         LogRev(h) is defined as follows :
 
-        :math:`LogRev(h) = rev(h')/rev(h)`
+        $$ LogRev(h) = rev(h')/rev(h) $$
 
         Args:
           D
@@ -710,14 +718,12 @@ class QPolynomial(object):
         return sep
 
     def newton_sum(self, d: int) -> "F":
-        """Computes the d-th Newton's sum :math:`s_d` of the polynomial h
+        """Computes the d-th Newton's sum \( s_d \) of the polynomial h
 
-        Given the roots :math:`x_k` of h :
+        Given the roots \( x_k \) of h :
 
-        :math:`h(x_k) = 0`
-
-        .. math::
-            s_d=\sum_{k=1}^{n} x_k^d
+        $ h(x_k) = 0 $$
+        $$ s_d=\sum_{k=1}^{n} x_k^d $$
 
         Args:
           d

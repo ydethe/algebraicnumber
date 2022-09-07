@@ -65,10 +65,8 @@ class AlgebraicNumber(object):
         """Plots the roots of the minimal polynomial of the number
 
         Args:
-          axe
-            If given, a matplotlib axe to draw on. By default, plotRoots creates it
-          kwargs
-            List of arguments to format the plot. Must not specify linestyle.
+          axe: If given, a matplotlib axe to draw on. By default, plotRoots creates it
+          kwargs: List of arguments to format the plot. Must not specify linestyle.
 
         """
         if axe is None:
@@ -94,10 +92,9 @@ class AlgebraicNumber(object):
             plt.show()
 
     def pow(self, p: int, q: int = 1) -> "AlgebraicNumber":
-        r"""If :math:`\alpha` is an alebraic number, computes
+        r"""If \( \alpha \) is an alebraic number, computes
 
-        .. math::
-            \alpha^{p/q}
+        $$ \alpha^{p/q} $$
 
         Examples:
           >>> a = AlgebraicNumber([-2, 0, 1], 1.414)
