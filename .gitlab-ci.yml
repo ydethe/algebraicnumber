@@ -34,7 +34,7 @@ test:
   stage: test
   script:
     - python3 -m pip install nox codecov
-    - nox -s test coverage
+    - nox -s tests coverage
     - codecov
   artifacts:
     paths:
