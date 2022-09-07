@@ -25,6 +25,7 @@ with codecs.open(
 
 print(conf_dict["options"])
 
+
 class BuildSphinxCommand(distutils.cmd.Command):
     description = "build sphinx documentation"
     user_options = []

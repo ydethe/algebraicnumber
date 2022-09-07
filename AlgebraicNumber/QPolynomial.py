@@ -122,7 +122,7 @@ class QPolynomial(object):
         """
         Examples:
         >>> p = QPolynomial([-2,0,Fraction(2,3),0,1,0])
-        
+
         """
         sp = ""
         sc = ""
