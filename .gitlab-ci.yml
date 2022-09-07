@@ -35,13 +35,11 @@ test:
   script:
     - python3 -m pip install nox codecov
     - nox -s tests coverage
-    - rm -rf tests
-    - cp -r build/htmldoc/* .
     - codecov
   artifacts:
     paths:
-      - tests
-      - coverage
+      - build/htmldoc/tests
+      - build/htmldoc/coverage
     reports:
       junit: build/*.xml
 
@@ -50,11 +48,9 @@ doc:
   script:
     - python3 -m pip install nox
     - nox -s docs
-    - rm -rf docs
-    - cp -r build/htmldoc/AlgebraicNumber docs
   artifacts:
     paths:
-      - docs
+      - build/htmldoc/AlgebraicNumber
 
 publish_doc:
   stage: deploy
@@ -64,8 +60,7 @@ publish_doc:
   #   - if: $CI_COMMIT_TAG =~ /^v.*/
   #     when: always
   script:
-    - mkdir public
-    - cp -r docs tests coverage public
+    - cp -r build/htmldoc public
   artifacts:
     paths:
       - public
