@@ -54,7 +54,7 @@ doc:
     - cp -r build/htmldoc/AlgebraicNumber docs
   artifacts:
     paths:
-      - doc
+      - docs
 
 publish_doc:
   stage: deploy
