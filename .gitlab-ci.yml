@@ -38,18 +38,18 @@ test:
     - codecov
   artifacts:
     paths:
-      - test-results
+      - build
     reports:
       junit: build/*.xml
 
 doc:
   stage: test
   script:
-    - python3 -m pip install nox codecov
+    - python3 -m pip install nox
     - nox -s docs
   artifacts:
     paths:
-      - build/htmldoc
+      - build
 
 publish_doc:
   stage: deploy
