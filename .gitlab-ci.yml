@@ -50,6 +50,7 @@ doc:
   script:
     - python3 -m pip install nox
     - nox -s docs
+    - rm -rf docs
     - cp -r build/htmldoc/AlgebraicNumber docs
   artifacts:
     paths:
