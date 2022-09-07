@@ -55,7 +55,7 @@ doc:
     paths:
       - pub_doc
 
-publish_doc:
+pages:
   stage: deploy
   dependencies:
   - test
