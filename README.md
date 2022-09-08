@@ -1,5 +1,4 @@
-AlgebraicNumber
-===============
+# AlgebraicNumber
 
 [![image](https://img.shields.io/pypi/v/AlgebraicNumber.svg)](https://pypi.python.org/pypi/AlgebraicNumber)
 [![image](https://gitlab.com/ydethe/algebraicnumber/badges/master/pipeline.svg)](https://gitlab.com/ydethe/algebraicnumber/pipelines)
@@ -7,10 +6,19 @@ AlgebraicNumber
 
 A library to manipulate algebraic numbers
 
-Documentation
--------------
+## Documentation
 
-Pour générer la documentation du code, lancer:
+To generate the documentation,run:
 
-    nox -s docs
+    nox
     
+https://ydethe.gitlab.io/algebraicnumber/docs
+
+## Usage
+
+    >>> z = AlgebraicNumber.unity() + AlgebraicNumber.imaginary()
+    >>> z.poly.printCoeff()
+    '[2,-2,1]'
+    >>> p = z*z.conj()
+    >>> p.poly.printCoeff()
+    '[-2,1]'
