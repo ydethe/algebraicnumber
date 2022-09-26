@@ -540,9 +540,7 @@ class QPolynomial(object):
         coeff = self.getCoefficients()[-1::-1]
         n = deg + 1 - len(coeff)
         assert n >= 0
-        return QPolynomial(
-            [self.F(0)] * n + self.getCoefficients()[-1::-1], field=self.F
-        )
+        return QPolynomial([self.F(0)] * n + self.getCoefficients()[-1::-1], field=self.F)
 
     def LogRev(self, D: int = None) -> "QPolynomial":
         """This function returns the logarithmic reverse rational power series associated with h, denoted LogRev(h)

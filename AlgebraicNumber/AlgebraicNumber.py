@@ -84,9 +84,7 @@ class AlgebraicNumber(object):
 
         rc = self.poly.roots()
         axe.plot(np.real(rc), np.imag(rc), linestyle="", **kwargs)
-        axe.plot(
-            [np.real(self.approx)], [np.imag(self.approx)], linestyle="", marker="*"
-        )
+        axe.plot([np.real(self.approx)], [np.imag(self.approx)], linestyle="", marker="*")
 
         if show:
             plt.show()

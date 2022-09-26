@@ -1,0 +1,80 @@
+[project]
+name = "algebraicnumber"
+dynamic = ["version"]
+description = ""
+authors = [
+    {name = "Yann de The", email = "ydethe@gmail.com"},
+]
+dependencies = ["numpy>=1.11.1", "scipy>=0.18.1", "rich"]
+requires-python = ">=3.9,<3.12"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.urls]
+"Bug Tracker" = "https://gitlab.com/ydethe/algebraicnumber/-/issues"
+Homepage = "https://gitlab.com/ydethe/algebraicnumber"
+Source = "https://gitlab.com/ydethe/algebraicnumber"
+
+[build-system]
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"
+
+[tool.pylint.main]
+ignore-patterns = ["kt_*.py"]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+force-exclude = 'kt_.*.py'
+
+[tool.pdm.version]
+source = "scm"
+
+[tool.pdm.build]
+includes = [
+    "AlgebraicNumber/",
+]
+excludes = [
+    "tests",
+    "examples",
+    "build",
+    "dev",
+    "dist",
+    "mockup"
+]
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "ipython~=7.23.1",
+    "black[jupyter]==22.3.0",
+]
+doc = [
+    "pdoc3~=0.10.0",
+    "pylint~=2.15.3",
+]
+test = [
+    "pytest~=7.1.3",
+    "pytest-cov~=3.0.0",
+    "pytest-mock~=3.8.2",
+    "pytest-instafail~=0.4.2",
+    "pytest-picked~=0.4.6",
+    "pytest-sugar~=0.9.5",
+    "pytest-html~=3.1.1",
+]
+
+[tool.pdm.scripts]
+site_packages = true
+test.shell = """\
+    mkdir -p build/htmldoc/tests
+    pytest --html=build/htmldoc/tests/report.html --self-contained-html --junitxml=build/junit.xml --cov AlgebraicNumber tests --doctest-modules AlgebraicNumber
+    coverage html -d build/htmldoc/coverage
+"""
+doc.shell = """\
+    mkdir -p build/htmldoc/AlgebraicNumber
+    pdoc --html --force --config latex_math=True --template-dir docs/template -o build/htmldoc AlgebraicNumber
+    pyreverse -s0 AlgebraicNumber -k --colorized -p AlgebraicNumber -m no -d build/htmldoc
+    dot -Tpng build/htmldoc/classes_AlgebraicNumber.dot -o build/htmldoc/AlgebraicNumber/classes.png
+"""

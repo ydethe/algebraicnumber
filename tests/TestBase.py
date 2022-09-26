@@ -42,9 +42,7 @@ class TestBase(unittest.TestCase):
 
     def assertNpArrayAlmostEqual(self, actual, desired, delta):
         """Raises an AssertionError if two objects are not equal up to desired precision.."""
-        assert_allclose(
-            actual, desired, atol=delta, equal_nan=False, err_msg="", verbose=True
-        )
+        assert_allclose(actual, desired, atol=delta, equal_nan=False, err_msg="", verbose=True)
 
     def assertQPolynomialEqual(self, actual, desired):
         self.assertTrue(actual == desired)
