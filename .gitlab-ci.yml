@@ -33,8 +33,10 @@ stages:
 test:
   stage: test
   script:
-    - python3 -m pip install nox codecov
-    - nox -s tests coverage
+    - python3 -m pip install pdm codecov
+    - pdm venv create
+    - pdm install
+    - pdm test
     - mv build/htmldoc/tests pub_tests
     - mv build/htmldoc/coverage pub_coverage
     - codecov
@@ -48,8 +50,10 @@ test:
 doc:
   stage: test
   script:
-    - python3 -m pip install nox
-    - nox -s docs
+    - python3 -m pip install pdm codecov
+    - pdm venv create
+    - pdm install
+    - pdm doc
     - mv build/htmldoc/AlgebraicNumber pub_doc
   artifacts:
     paths:
@@ -81,6 +85,8 @@ publish_pypi:
       when: always
   script:
     - python3 -m pip install nox twine
-    - nox -s build
+    - pdm venv create
+    - pdm install
+    - pdm build
     - twine upload dist/*
     
