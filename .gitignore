@@ -2,6 +2,7 @@
 .DS_Store
 .pdm.toml
 .venv
+.vscode
 
 # Generated files
 *.bin
